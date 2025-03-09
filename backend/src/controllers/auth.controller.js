@@ -4,13 +4,13 @@ import bcrypt from 'bcryptjs';
 
 
 export const signup = async (req, res) => {
-    const {username, email, password} = req.body;
+    const {username, password} = req.body;
     try {
         // console.log("req.body: ", req.body);
 
         // validation
         // check if all fields are filled
-        if (!username || !email || !password){
+        if (!username || !password){
             return res.status(400).json({message: 'Please fill in all fields'});
         }
 
@@ -20,9 +20,9 @@ export const signup = async (req, res) => {
         }
 
         // check if user already exists
-        const user = await User.findOne({email});
+        const user = await User.findOne({username: username});
         if (user){
-            return res.status(400).json({message: 'Email is already taken'});
+            return res.status(400).json({message: 'Username is already taken'});
         }
 
         // hashing password
@@ -32,7 +32,6 @@ export const signup = async (req, res) => {
         // create new user
         const newUser = new User({
             username: username,
-            email: email,
             password: hashedPassword,
         });
         
@@ -47,7 +46,6 @@ export const signup = async (req, res) => {
             res.status(201).json({
                 _id: newUser._id,
                 username: newUser.username,
-                email: newUser.email,
                 message: 'User created successfully'
             });
 
