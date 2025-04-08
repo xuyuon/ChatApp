@@ -1,0 +1,23 @@
+.button {
+  display: flex;
+  align-items: cover;
+  border-radius: 40px;
+}
+.button:hover {
+  background-color: #cecbca;
+  color: #e77524;
+}
+.button.selected {
+  box-shadow: 0 0 10px hsl(40, 90%, 48%);
+}
+.button > h2 {
+  font-size: 20px;
+}
+
+.button > .MuiSvgIcon-root {
+  padding: 20px;
+}
+
+a {
+  color: #f47458;
+}

@@ -1,0 +1,10 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 250px;
+  min-width: 250px;
+  padding: 20px 20px;
+  margin: 0 auto 0 0;
+  box-shadow: 0 0 6px hsl(40, 90%, 48%);
+}
