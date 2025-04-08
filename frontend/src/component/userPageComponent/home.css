@@ -1,0 +1,10 @@
+.card {
+  margin: 40px 120px 120px 400px;
+  padding: 20px;
+}
+
+.card .MuiCard-root {
+  margin-bottom: 40px;
+  border-radius: 56px;
+  border: 0.3px solid rgba(247, 243, 243, 0.12);
+}
