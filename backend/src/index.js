@@ -1,25 +1,31 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-
-import { connectDB } from './lib/db.js';
-import authRoutes from './routes/auth.route.js';
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const { connectDB } = require("./lib/db");
+const authRoutes = require("./routes/auth.route");
+const chatRoutes = require("./routes/chat.route");
+const { initSocket } = require("./controllers/chat.controller");
 
 const app = express();
-
 dotenv.config();
-const PORT = process.env.PORT
 
-app.use(cors({
-    origin: `http://${process.env.FRONTEND_HOST || 'localhost'}:${process.env.FRONTEND_PORT || 3000}`,
-    credentials: true, // Allow cookies to be sent
-  }));
+const PORT = process.env.PORT;
 
-app.use(express.json()); 
+app.use(
+  cors({
+    origin: `http://${"localhost"}:${3000}`,
+    credentials: true,
+  })
+);
 
-app.use('/api/auth', authRoutes);
+app.use(express.json());
 
-app.listen(PORT, () => {
-    console.log('Server is running on port: ' + PORT);
-    connectDB();
+app.use("/api/auth", authRoutes);
+app.use("/api/chat", chatRoutes);
+
+const server = initSocket(app);
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port: ${PORT}`);
+  connectDB();
 });

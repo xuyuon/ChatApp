@@ -7,45 +7,63 @@ import ChatIcon from "@mui/icons-material/Chat";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
+import Cookies from 'js-cookie';
+import { SocketContext } from "../userPageComponent/Socket";
 
-function Sidebar({ setLogInAs }) {
+function Sidebar({ setLogInAs}) {
   const [clickedButton, setClickedButton] = useState("Home"); // Record which button is clicked
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false); // State for logout confirmation dialog
   const navigate = useNavigate();
+  const socket = useContext(SocketContext);
 
   const handleLogout = async () => {
     console.log("Initiating logout");
 
-    const logoutUrl = `http://${window.location.hostname}:${process.env.REACT_APP_API_PORT || 5001}/api/auth/logout`;
+    const logoutUrl = `${
+      process.env.REACT_APP_BACKEND_URL || "http://localhost:5001"
+    }/api/auth/logout`;
 
     try {
       const response = await fetch(logoutUrl, {
         method: "POST",
-        mode: "cors",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // Include cookies to allow the backend to clear the JWT cookie
+        credentials: "include",
       });
 
       const data = await response.json();
 
-      if (response.status === 200 && data.message === "Logout successful") {
+      if (response.ok && data.message === "Logout successful") {
         // Clear client-side session data
         sessionStorage.removeItem("username");
-        setLogInAs(null); // Clear the login role
+        sessionStorage.removeItem("userId");
+        sessionStorage.removeItem("token");
+        console.log("sessionStorage cleared");
 
-        setClickedButton(""); // Reset the selected button
-        setOpenLogoutDialog(false); // Close the dialog
-        navigate("/"); // Redirect to the login page
+        // Clear JWT cookie
+        Cookies.remove("jwt");
+        console.log("JWT cookie cleared");
+
+        // Socket is managed by SocketProvider; no need to disconnect here
+        // Reset login state
+        setLogInAs("");
+
+        // Reset UI state
+        setClickedButton("");
+        setOpenLogoutDialog(false);
+
+        // Navigate to login
+        navigate("/", { replace: true });
       } else {
+        console.error("Logout failed:", data.message);
         alert(data.message || "Logout failed");
         setOpenLogoutDialog(false);
       }
     } catch (err) {
-      console.error("Detailed error during logout:", err);
-      alert("An error occurred during logout. Please try again: " + err.message);
+      console.error("Logout error:", err);
+      alert("An error occurred during logout: " + err.message);
       setOpenLogoutDialog(false);
     }
   };
