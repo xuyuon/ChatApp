@@ -67,7 +67,7 @@ function Login({ setLogInAs }) {
   
         const data = await response.json();
   
-        if (response.status === 200 && data.message === "Login successful") {
+        if (response.status === 200 && data.message === "Logged in successfully") {
           sessionStorage.setItem("username", username);
           alert("Login Success");
           if (mode === "user") {
