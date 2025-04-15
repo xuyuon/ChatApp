@@ -14,12 +14,3 @@ Start the server:
 ```
 npm run dev
 ```
-
-* Front end
-```
-cd frontend
-```
-npm install
-```
-npm start
-```
