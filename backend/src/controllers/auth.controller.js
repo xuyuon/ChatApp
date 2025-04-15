@@ -61,60 +61,64 @@ export const signup = async (req, res) => {
 }
 
 export const login = async (req, res) => {
-    const { username, password } = req.body;
-    try {
-      console.log("Received login request with body:", req.body);
-  
-      // Validation
-      if (!username || !password) {
-        console.log("Validation failed: Missing fields");
-        return res.status(400).json({ message: 'Please fill in all fields' });
-      }
-  
-      // Check if user exists
-      const user = await User.findOne({ username });
-      if (!user) {
-        console.log("Validation failed: User not found");
-        return res.status(400).json({ message: 'Invalid credentials' });
-      }
-  
-      // Compare password
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        console.log("Validation failed: Incorrect password");
-        return res.status(400).json({ message: 'Invalid credentials' });
-      }
-  
-      // Generate JWT and set cookie
-      console.log("Generating JWT for user:", user.username);
-      generateJWT(user._id, res);
-  
-      // Send success response
-      res.status(200).json({
-        _id: user._id,
-        username: user.username,
-        message: 'Login successful',
-      });
-    } catch (error) {
-      console.log("Error in login route:", error.message, error.stack);
-      res.status(500).json({ message: error.message });
-    }
-  };
+    // res.send('login route');
+    const {username, password} = req.body;
 
-  export const logout = (req, res) => {
     try {
-      console.log("Received logout request");
-  
-      // Clear the JWT cookie
-      res.cookie('jwt', '', {
-        httpOnly: true,
-        expires: new Date(0), // Set the cookie to expire immediately
-      });
-  
-      // Send success response
-      res.status(200).json({ message: 'Logout successful' });
+        const user = await User.findOne({username: username});
+
+        // check if user exists
+        if (!user){
+            return res.status(400).json({message: "Invalide credentials"});
+        }
+
+        // check if password is correct
+        const isPasswordMatch = await bcrypt.compare(password, user.password)
+        if (!isPasswordMatch){
+            return res.status(400).json({message: "Invalide credentials"});
+        }
+
+        generateJWT(user._id, res);
+
+        res.status(200).json({
+            _id: user._id,
+            username: user.username,
+            message: "Logged in successfully"
+        })
     } catch (error) {
-      console.log("Error in logout route:", error.message, error.stack);
-      res.status(500).json({ message: error.message });
+        console.log("Error in login route: ", error.message);
+        res.status(500).send(error.message);
     }
-  };
+}
+
+export const logout = (req, res) => {
+    // res.send('logout route');
+    try{
+        // clear the cookie
+        res.cookie('jwt', '', {maxAge: 0});
+        res.status(200).json({message: 'Logged out successfully'});
+    } catch (error){
+        console.log("Error in logout route: ", error.message);
+        res.status(500).json({message: error.message});
+    }
+}
+
+export const updateProfile = async (req, res) => {
+    try{
+        console.log("updateProfile route");
+        // TODO: update user profile
+    } catch (error){
+        console.log("Error in updateProfile route: ", error.message);
+        res.status(500).json({message: error.message});
+    }
+}
+
+export const checkAuth = async (req, res) => {
+    // To check if user is logged in or not
+    try{
+        res.status(200).json(req.user);
+    }catch(error){
+        console.log("Error in checkAuth route: ", error.message);
+        res.status(500).json({message: error.message});
+    }
+}
