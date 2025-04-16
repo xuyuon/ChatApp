@@ -132,14 +132,6 @@ function Login({ setLogInAs }) {
               >
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <Typography variant="h6">Password:</Typography>
-                  <Link
-                    className={classes.linkText}
-                    style={{ opacity: "0.6" }}
-                    to="/forgot_password"
-                  >
-                    {" "}
-                    Forgot password?
-                  </Link>
                 </div>
                 <TextField
                   label="Password"
