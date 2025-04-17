@@ -8,6 +8,7 @@ import { usernameValidator, passwordValidator } from "../lib/Validator";
 import { axiosInstance } from "../lib/axios";
 
 
+
 function SignUp() {
   const classes = UseStyles();
   let navigate = useNavigate();

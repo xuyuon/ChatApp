@@ -69,7 +69,7 @@ function App() {
         // show user page when logged in as licensed user
         logInAs === "licensed" && (
           <Routes>
-            <Route path="/" element={<UserPage setLogInAs={setLogInAs} />} />
+            <Route path="/" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         )
@@ -79,7 +79,7 @@ function App() {
         // show user page when logged in as unlicensed user
         logInAs === "unlicensed" && (
           <Routes>
-            <Route path="/" element={<UserPage setLogInAs={setLogInAs} />} />
+            <Route path="/" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         )
