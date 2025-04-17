@@ -5,19 +5,19 @@ import { UseStyles } from "./CssFormat";
 import { usernameValidator, passwordValidator } from "./Validator";
 import toast from "react-hot-toast";
 
+import { axiosInstance } from "../lib/axios";
+
 
 function SignUp() {
   const classes = UseStyles();
   let navigate = useNavigate();
+
+  // state variables
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{6,}$/;
   const [passwordError, setPasswordError] = useState(false);
   const [passwordConfirmError, setPasswordConfirmError] = useState(false);
-  // Update the API URL to match the backend route
-  const signUpUrl = `http://${window.location.hostname}:${process.env.REACT_APP_API_PORT || 5001}/api/auth/signup`;
-
 
 
   const validateForm = () => {
@@ -39,41 +39,27 @@ function SignUp() {
 
 
   const handleSignUp = async () => {
-    console.log("Enter handleSignUp");
-    const postBody = {
-      username: username,
-      password: password,
-    };
-
     try {
-      const response = await fetch(signUpUrl, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(postBody),
-        credentials: "include", // Include cookies in the request (for the JWT cookie set by the backend)
-      });
-      const data = await response.json();
+      const response = await axiosInstance.post("/auth/signup", 
+        {username, password,}
+      );
+      const data = response.data;
       if (response.status === 201 && data.message === "User created successfully") {
         toast.success("User created successfully. Please log in.");
-      } else {
-        toast.error(data.message || "Signup failed");
+        navigate("/"); // Redirect to login after successful signup
+      }else {
+        toast.error(data.message);
       }
     } catch (err) {
-      console.error("Error during signup:", err);
-      toast.error("An error occurred during signup. Please try again.");
-    } finally {
-      navigate("/"); // Redirect to login after signup
+      toast.error(err.response.data.message);
     }
   }
 
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Enter handleSubmit");
 
     const success = validateForm();
-
     if (success === true){
       handleSignUp();
     }
@@ -83,7 +69,7 @@ function SignUp() {
   const handlePasswordChange = (event) => {
     const value = event.target.value;
     setPassword(value);
-  
+    
     // Validate the password and update the error state
     const isValid = passwordValidator(value) === "";
     setPasswordError(!isValid); // Set error to false if valid
@@ -130,11 +116,6 @@ function SignUp() {
               onChange={handlePasswordChange}
               error={passwordError}
               helperText={passwordError ? "Invalid password" : ""}
-              inputProps={{
-                pattern: passwordRegex.source,
-                title:
-                  "Password must contain at least 6 characters",
-              }}
               fullWidth
             />
           </Box>
