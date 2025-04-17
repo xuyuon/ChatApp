@@ -40,8 +40,6 @@ export const signup = async (req, res) => {
 
         // save user to database
         if (newUser) {
-            // generate JWT
-            generateJWT(newUser._id, res);
             await newUser.save();
 
             res.status(201).json({
