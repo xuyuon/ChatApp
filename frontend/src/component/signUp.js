@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TextField, Button, Typography, Box } from "@mui/material";
 import { UseStyles } from "./CssFormat";
-import { usernameValidator, passwordValidator } from "./Validator";
 import toast from "react-hot-toast";
 
+import { usernameValidator, passwordValidator } from "../lib/Validator";
 import { axiosInstance } from "../lib/axios";
 
 
@@ -21,6 +21,7 @@ function SignUp() {
 
 
   const validateForm = () => {
+    console.log("validateForm");
     // Client-side validation
     let userValidateResult = usernameValidator(username);
     let pwdValidateResult = passwordValidator(password);
@@ -39,12 +40,13 @@ function SignUp() {
 
 
   const handleSignUp = async () => {
+    console.log("handleSignUp");
     try {
       const response = await axiosInstance.post("/auth/signup", 
         {username, password,}
       );
       const data = response.data;
-      if (response.status === 201 && data.message === "User created successfully") {
+      if (response.status === 201) {
         toast.success("User created successfully. Please log in.");
         navigate("/"); // Redirect to login after successful signup
       }else {
@@ -57,6 +59,7 @@ function SignUp() {
 
 
   const handleSubmit = async (event) => {
+    console.log("handleSubmit");
     event.preventDefault();
 
     const success = validateForm();
@@ -69,7 +72,7 @@ function SignUp() {
   const handlePasswordChange = (event) => {
     const value = event.target.value;
     setPassword(value);
-    
+
     // Validate the password and update the error state
     const isValid = passwordValidator(value) === "";
     setPasswordError(!isValid); // Set error to false if valid

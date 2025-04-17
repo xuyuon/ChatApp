@@ -7,9 +7,15 @@ import ChatIcon from "@mui/icons-material/Chat";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 
+import { toast } from "react-hot-toast";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography } from "@mui/material";
+
+import { axiosInstance } from "../../lib/axios";
+
+
+
 
 function Sidebar({ setLogInAs }) {
   const [clickedButton, setClickedButton] = useState("Home"); // Record which button is clicked
@@ -19,34 +25,23 @@ function Sidebar({ setLogInAs }) {
   const handleLogout = async () => {
     console.log("Initiating logout");
 
-    const logoutUrl = `http://${window.location.hostname}:${process.env.REACT_APP_API_PORT || 5001}/api/auth/logout`;
-
-    try {
-      const response = await fetch(logoutUrl, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // Include cookies to allow the backend to clear the JWT cookie
-      });
-
-      const data = await response.json();
-
-      if (response.status === 200 && data.message === "Logout successful") {
-        // Clear client-side session data
-        sessionStorage.removeItem("username");
-        setLogInAs(null); // Clear the login role
-
+    try{
+      const response = await axiosInstance.post("/auth/logout", {});
+      const data = response.data;
+      if (response.status === 200) {
+        sessionStorage.removeItem("username"); // Clear the session storage
+        setLogInAs(""); // Clear the login role
         setClickedButton(""); // Reset the selected button
-        setOpenLogoutDialog(false); // Close the dialog
+        toast.success("Logout successful"); // Show success message
         navigate("/"); // Redirect to the login page
-      } else {
-        alert(data.message || "Logout failed");
-        setOpenLogoutDialog(false);
+      }else {
+        toast.error(data.message || "Logout failed"); // Show error message
       }
-    } catch (err) {
+    }catch(err){
       console.error("Detailed error during logout:", err);
-      alert("An error occurred during logout. Please try again: " + err.message);
-      setOpenLogoutDialog(false);
+      toast.error("An error occurred during logout. Please try again: " + err.message); // Show error message
+    }finally{
+      setOpenLogoutDialog(false); // Close the dialog
     }
   };
 
