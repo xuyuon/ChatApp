@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
     userType: {
         type: String,
         enum: ["licensed", "unlicensed"],
-        default: "licensed",
+        default: "unlicensed",
     },
     // email: {
     //     type: String,

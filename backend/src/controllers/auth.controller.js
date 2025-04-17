@@ -1,4 +1,5 @@
 import User from '../models/user.model.js';
+import License from '../models/license.model.js';
 import { generateJWT } from '../lib/utils.js';
 import bcrypt from 'bcryptjs';
 
@@ -119,6 +120,45 @@ export const checkAuth = async (req, res) => {
         res.status(200).json(req.user);
     }catch(error){
         console.log("Error in checkAuth route: ", error.message);
+        res.status(500).json({message: error.message});
+    }
+}
+
+export const addLicense = async (req, res) => {
+    // To add liscense to user
+    try{
+        const {licenseKey} = req.body;
+        const user = await User.findById(req.user._id);
+
+        const license = await License.findOne({ licenseKey: licenseKey });
+
+        console.log("license: ", license);
+        // check if liscense key is valid
+        if (!license){
+            return res.status(400).json({message: "Invalid license key"});
+        }
+        if (license.isActive === true){
+            return res.status(400).json({message: "License key is already used"});
+        }
+
+        // check if user is already liscensed
+        if (user.userType === "licensed"){
+            return res.status(400).json({message: "User is already licensed"});
+        }
+        
+        // update the liscense key to used
+        license.isActive = true;
+        license.user = user._id;
+        await license.save();
+
+        // update the user to be liscensed
+        user.userType = "licensed";
+        await user.save();
+
+        res.status(200).json({ message: "License added"});
+
+    }catch (error){
+        console.log("Error in addLicense route: ", error.message);
         res.status(500).json({message: error.message});
     }
 }
