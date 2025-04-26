@@ -5,33 +5,41 @@ import User from '../models/user.model.js'; // if needed
 
 /* ─────────────── R 2.1 – send request ─────────────── */
 export const sendRequest = async (req, res) => {
-    try {
-      const fromUser = req.user._id;
-      const { toUserId } = req.body;
-  
-      if (!toUserId)                 return res.status(400).json({ msg: 'toUserId required' });
-      if (fromUser.equals(toUserId)) return res.status(400).json({ msg: 'Cannot add yourself' });
-  
-      const toUser = await User.findById(toUserId);
-      if (!toUser) return res.status(404).json({ msg: 'User not found' });
-  
-      const alreadyFriend = await Friend.findOne({ user: fromUser, friend: toUserId });
-      if (alreadyFriend) return res.status(409).json({ msg: 'Already friends' });
-  
-      const pending = await FriendRequest.findOne({
-        $or: [
-          { fromUser, toUser: toUserId, status: 'pending' },
-          { fromUser: toUserId, toUser: fromUser, status: 'pending' }
-        ]
-      });
-      if (pending) return res.status(409).json({ msg: 'Request already pending' });
-  
-      const request = await FriendRequest.create({ fromUser, toUser: toUserId });
-      res.status(201).json(request);
-    } catch (e) {
-      res.status(500).json({ msg: e.message });
-    }
-  };
+  try {
+    const fromUser = req.user._id;
+    const { toUsername } = req.body;
+
+    if (!toUsername)
+      return res.status(400).json({ msg: 'toUsername required' });
+
+    const toUser = await User.findOne({ username: toUsername });
+
+    if (!toUser)
+      return res.status(404).json({ msg: 'User not found' });
+
+    if (fromUser.equals(toUser._id))
+      return res.status(400).json({ msg: 'Cannot add yourself' });
+
+    const alreadyFriend = await Friend.findOne({ user: fromUser, friend: toUser._id });
+    if (alreadyFriend)
+      return res.status(409).json({ msg: 'Already friends' });
+
+    const pending = await FriendRequest.findOne({
+      $or: [
+        { fromUser,        toUser: toUser._id, status: 'pending' },
+        { fromUser: toUser._id, toUser: fromUser, status: 'pending' }
+      ]
+    });
+    if (pending)
+      return res.status(409).json({ msg: 'Request already pending' });
+
+    const request = await FriendRequest.create({ fromUser, toUser: toUser._id });
+    res.status(201).json(request);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: err.message });
+  }
+};
   
   /* ─────────────── R 2.2 – accept ─────────────── */
   export const acceptRequest = async (req, res) => {
@@ -79,24 +87,39 @@ export const sendRequest = async (req, res) => {
   /* ─────────────── R 2.3 – unfriend ─────────────── */
   export const deleteFriend = async (req, res) => {
     try {
-      const { friendId } = req.params;      // Friend doc _id
-      const edge = await Friend.findById(friendId);
-      if (!edge) return res.status(404).json({ msg: 'Friend edge not found' });
-      if (!edge.user.equals(req.user._id))
-        return res.status(403).json({ msg: 'Not your friend edge' });
+      const { username } = req.params; 
+      const meId = req.user._id;
   
-      const chatId = edge.chat;
+      /* look up the target user */
+      const target = await User.findOne({ username }); 
+      if (!target)
+        return res.status(404).json({ msg: 'User not found' });
   
+      /* make sure an edge exists (me ➞ target) */
+      const edge = await Friend.findOne({ user: meId, friend: target._id });
+      if (!edge)
+        return res.status(404).json({ msg: 'You are not friends' });
+  
+      const chatId = edge.chat; 
+  
+      /* delete both directions */
       await Friend.deleteMany({
         $or: [
-          { _id: friendId },
-          { user: edge.friend, friend: edge.user }
+          { user: meId,       friend: target._id },
+          { user: target._id, friend: meId }
         ]
       });
-      // Optional: await Chat.findByIdAndDelete(chatId);
+
+      /* delete the chat no matter it's empty or not */
+      const chat = await Chat.findById(chatId);
+      if (chat) {
+        await Chat.findByIdAndDelete(chatId);
+      }
+  
       res.json({ msg: 'Friend removed' });
-    } catch (e) {
-      res.status(500).json({ msg: e.message });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ msg: err.message });
     }
   };
   

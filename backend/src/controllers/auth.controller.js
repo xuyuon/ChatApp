@@ -145,7 +145,7 @@ export const addLicense = async (req, res) => {
         
         // update the liscense key to used
         license.isActive = true;
-        license.user = user._id;
+        license.userId = user._id;
         await license.save();
 
         // update the user to be liscensed

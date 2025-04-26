@@ -21,7 +21,7 @@ router.patch('/request/:reqId/accept', acceptRequest);
 router.patch('/request/:reqId/reject', rejectRequest);
 
 /* R 2.3 */
-router.delete('/:friendId', deleteFriend);
+router.delete('/:username', deleteFriend);
 
 /* Convenience GETs */
 router.get('/', getFriends);
