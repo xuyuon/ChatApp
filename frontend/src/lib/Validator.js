@@ -1,8 +1,8 @@
 export const usernameloginValidator = (username) => {
   if (!username) {
     return "Username is required.\n";
-  } else if (username.length < 4 || username.length > 16) {
-    return "Length of Username should be between 4 to 16.\n";
+  } else if (username.length > 16) {
+    return "Length of Username should be smaller than 16.\n";
   }
   return "";
 };
@@ -12,8 +12,8 @@ export const usernameValidator = (username) => {
     return "Username is required.\n";
   } else if (username.includes("admin")) {
     return "Username cannot include 'admin'.\n";
-  } else if (username.length < 4 || username.length > 16) {
-    return "Length of Username should be between 4 to 16.\n";
+  } else if (username.length > 16) {
+    return "Length of Username should be smaller than 16.\n";
   }
   return "";
 };

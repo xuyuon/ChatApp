@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 
 
 const app = express();
-app.use(cookieParser()); 
+
 dotenv.config();
 const PORT = process.env.PORT
 
@@ -19,6 +19,7 @@ app.use(cors({
   }));
 
 app.use(express.json()); 
+app.use(cookieParser()); // parse cookies
 
 app.use('/api/auth', authRoutes);
 app.use('/api/friends', friendRoutes);
