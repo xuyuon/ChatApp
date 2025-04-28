@@ -2,73 +2,90 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TextField, Button, Typography, Box } from "@mui/material";
 import { UseStyles } from "./CssFormat";
-import Cookies from "js-cookie";
-import { usernameValidator, passwordValidator } from "./Validator";
+import toast from "react-hot-toast";
+
+import { usernameValidator, passwordValidator } from "../lib/Validator";
+import { axiosInstance } from "../lib/axios";
+
+
 
 function SignUp() {
-    const classes = UseStyles();
-    let navigate = useNavigate();
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/;
-    const [passwordError, setPasswordError] = useState(false);
-  
-    const handleSubmit = async (event) => {
-      event.preventDefault();
-      console.log("Enter handleSubmit");
-  
-      // Update the API URL to match the backend route
-      const signUpUrl = `http://${window.location.hostname}:${process.env.REACT_APP_API_PORT || 5001}/api/auth/signup`;
-  
-      // Client-side validation
-      let userValidateResult = usernameValidator(username);
-      let pwdValidateResult = passwordValidator(password);
-      let validateResult = userValidateResult + pwdValidateResult;
-  
-      if (validateResult !== "") {
-        alert(validateResult);
-        return null;
+  const classes = UseStyles();
+  let navigate = useNavigate();
+
+  // state variables
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordConfirmError, setPasswordConfirmError] = useState(false);
+
+
+  const validateForm = () => {
+    console.log("validateForm");
+    // Client-side validation
+    let userValidateResult = usernameValidator(username);
+    let pwdValidateResult = passwordValidator(password);
+    let validateResult = userValidateResult + pwdValidateResult;
+
+    if (validateResult !== "") {
+      toast.error(validateResult);
+      return false;
+    }
+    if (password !== passwordConfirm) {
+      toast.error("Passwords do not match.");
+      return false;
+    }
+    return true;
+  }
+
+
+  const handleSignUp = async () => {
+    console.log("handleSignUp");
+    try {
+      const response = await axiosInstance.post("/auth/signup", 
+        {username, password,}
+      );
+      const data = response.data;
+      if (response.status === 201) {
+        toast.success("User created successfully. Please log in.");
+        navigate("/"); // Redirect to login after successful signup
+      }else {
+        toast.error(data.message);
       }
-  
-      // Align frontend password validation with backend
-      if (password.length < 6) {
-        alert("Password must be at least 6 characters long");
-        return null;
-      }
-  
-      const postBody = {
-        username: username,
-        password: password,
-      };
-  
-      try {
-        const response = await fetch(signUpUrl, {
-          method: "POST",
-          mode: "cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(postBody),
-          credentials: "include", // Include cookies in the request (for the JWT cookie set by the backend)
-        });
-  
-        const data = await response.json();
-  
-        if (response.status === 201 && data.message === "User created successfully") {
-          Cookies.set("signUpUsernameCookie", username);
-          navigate("/"); // Redirect to login after signup
-        } else {
-          alert(data.message || "Signup failed");
-        }
-      } catch (err) {
-        console.error("Error during signup:", err);
-        alert("An error occurred during signup. Please try again.");
-      }
-    };
+    } catch (err) {
+      toast.error(err.response.data.message);
+    }
+  }
+
+
+  const handleSubmit = async (event) => {
+    console.log("handleSubmit");
+    event.preventDefault();
+
+    const success = validateForm();
+    if (success === true){
+      handleSignUp();
+    }
+  };
+
 
   const handlePasswordChange = (event) => {
     const value = event.target.value;
     setPassword(value);
-    setPasswordError(!passwordRegex.test(value));
+
+    // Validate the password and update the error state
+    const isValid = passwordValidator(value) === "";
+    setPasswordError(!isValid); // Set error to false if valid
   };
+
+
+  const handlePasswordConfirmChange = (event) => {
+    const value = event.target.value;
+    setPasswordConfirm(value);
+    setPasswordConfirmError(!(value === password));
+  };
+
 
   return (
     <div className={classes.rootNormal}>
@@ -103,11 +120,20 @@ function SignUp() {
               onChange={handlePasswordChange}
               error={passwordError}
               helperText={passwordError ? "Invalid password" : ""}
-              inputProps={{
-                pattern: passwordRegex.source,
-                title:
-                  "Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one number",
-              }}
+              fullWidth
+            />
+          </Box>
+          <Box className={classes.form_item}>
+            <Typography variant="h6">Confirm your Password:</Typography>
+            <TextField
+              label="Confirm Password"
+              variant="outlined"
+              className={classes.inputField}
+              type="password"
+              value={passwordConfirm}
+              onChange={(event) => handlePasswordConfirmChange(event)}
+              error={passwordConfirmError}
+              helperText={passwordConfirmError ? "Passwords do not match" : ""}
               fullWidth
             />
           </Box>

@@ -10,13 +10,14 @@ import Sidebar from "./userPageComponent/Sidebar";
 // import RecommendationPage from "./userPageComponent/RecommendationPage";
 // import OtherProfilePage from "./userPageComponent/OtherProfilePage";
 import ChatPage from "./userPageComponent/ChatPage";
+import FriendPage from "./userPageComponent/FriendPage";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-const UserPage = ({ setLogInAs }) => {
+const UserPage = ({ logInAs, setLogInAs }) => {
   return (
     <div>
-      <Sidebar setLogInAs={setLogInAs} />
+      <Sidebar logInAs={logInAs} setLogInAs={setLogInAs} />
       <Routes>
         {/* <Route path="/userHome" element={<Home />} />
         <Route path="/post" element={<PostDetailPage />} />
@@ -31,6 +32,7 @@ const UserPage = ({ setLogInAs }) => {
           path="chat"
           element={<ChatPage sender={sessionStorage.getItem("username")} />}
         />
+        <Route path="friends" element={<FriendPage />} />
       </Routes>
     </div>
   );
