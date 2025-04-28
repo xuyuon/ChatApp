@@ -98,6 +98,7 @@ export const logout = (req, res) => {
     } catch (error){
         console.log("Error in logout route: ", error.message);
         res.status(500).json({message: error.message});
+
     }
 }
 
@@ -159,3 +160,4 @@ export const addLicense = async (req, res) => {
         res.status(500).json({message: error.message});
     }
 }
+

@@ -10,6 +10,7 @@ import Login from "./component/Login";
 import SignUp from "./component/signUp";
 import UserPage from "./component/UserPage.js";
 import Friend from "./component/userPageComponent/FriendPage.js";
+
 import { checkAuth } from "./lib/checkAuth";
 
 
@@ -72,6 +73,7 @@ function App() {
           <Routes>
             <Route path="/" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
             <Route path="/friends" element={<Friend logInAs={logInAs} setLogInAs={setLogInAs} />} />
+
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         )
