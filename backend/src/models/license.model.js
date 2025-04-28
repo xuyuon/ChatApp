@@ -21,4 +21,6 @@ const licenseSchema = new mongoose.Schema({
 });
 
 const License = mongoose.model("License", licenseSchema);
+
 export default License;
+

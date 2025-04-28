@@ -3,7 +3,6 @@ import License from '../models/license.model.js';
 import { generateJWT } from '../lib/utils.js';
 import bcrypt from 'bcryptjs';
 
-
 export const signup = async (req, res) => {
     const {username, password} = req.body;
     try {
@@ -99,6 +98,7 @@ export const logout = (req, res) => {
     } catch (error){
         console.log("Error in logout route: ", error.message);
         res.status(500).json({message: error.message});
+
     }
 }
 
@@ -146,7 +146,7 @@ export const addLicense = async (req, res) => {
         
         // update the liscense key to used
         license.isActive = true;
-        license.user = user._id;
+        license.userId = user._id;
         await license.save();
 
         // update the user to be liscensed
@@ -160,3 +160,4 @@ export const addLicense = async (req, res) => {
         res.status(500).json({message: error.message});
     }
 }
+
