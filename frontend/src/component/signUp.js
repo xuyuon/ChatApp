@@ -98,6 +98,11 @@ function SignUp() {
           >
             Chat App
           </Typography>
+          {error && (
+            <Typography color="error" variant="body1">
+              {error}
+            </Typography>
+          )}
           <Box className={classes.form_item}>
             <Typography variant="h6">Please fill in your username:</Typography>
             <TextField
@@ -141,7 +146,6 @@ function SignUp() {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleSubmit}
               type="submit"
               className={classes.button}
             >

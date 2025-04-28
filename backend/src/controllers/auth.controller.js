@@ -1,9 +1,10 @@
-import User from '../models/user.model.js';
-import License from '../models/license.model.js';
-import { generateJWT } from '../lib/utils.js';
-import bcrypt from 'bcryptjs';
+const bcrypt = require('bcryptjs');
+const User = require('../models/user.model.js');
+const License = require('../models/license.model.js');
+const { generateJWT } = require('../lib/utils.js');
+const jwt = require('jsonwebtoken');
 
-export const signup = async (req, res) => {
+const signup = async (req, res) => {
     const {username, password} = req.body;
     try {
         // console.log("req.body: ", req.body);
@@ -58,7 +59,7 @@ export const signup = async (req, res) => {
     }
 }
 
-export const login = async (req, res) => {
+const login = async (req, res) => {
     // res.send('login route');
     const {username, password} = req.body;
 
@@ -89,7 +90,7 @@ export const login = async (req, res) => {
     }
 }
 
-export const logout = (req, res) => {
+const logout = (req, res) => {
     // res.send('logout route');
     try{
         // clear the cookie
@@ -102,7 +103,7 @@ export const logout = (req, res) => {
     }
 }
 
-export const updateProfile = async (req, res) => {
+const updateProfile = async (req, res) => {
     try{
         console.log("updateProfile route");
         // TODO: update user profile
@@ -112,7 +113,7 @@ export const updateProfile = async (req, res) => {
     }
 }
 
-export const checkAuth = async (req, res) => {
+const checkAuth = async (req, res) => {
     // To check if user is logged in or not
     try{
         res.status(200).json(req.user);
@@ -122,7 +123,7 @@ export const checkAuth = async (req, res) => {
     }
 }
 
-export const addLicense = async (req, res) => {
+const addLicense = async (req, res) => {
     // To add liscense to user
     try{
         const {licenseKey} = req.body;
@@ -161,3 +162,4 @@ export const addLicense = async (req, res) => {
     }
 }
 
+module.exports = { signup, login, logout, updateProfile, checkAuth, addLicense };

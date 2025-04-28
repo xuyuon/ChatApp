@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Toaster } from "react-hot-toast";
+import { SocketProvider } from "./component/userPageComponent/Socket";
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
-
 
 import "./App.css";
 import Login from "./component/Login";
@@ -12,9 +12,6 @@ import UserPage from "./component/UserPage.js";
 import Friend from "./component/userPageComponent/FriendPage.js";
 
 import { checkAuth } from "./lib/checkAuth";
-
-
-
 
 function App() {
   const [logInAs, setLogInAs] = useState("");
@@ -55,41 +52,43 @@ function App() {
 
 
   return (
-    <div>
-      {
-        // Show sign-in and sign-up routes when not logged in
-        !logInAs && (
-          <Routes>
-            <Route path="/login" element={<Login setLogInAs={setLogInAs} />} />
-            <Route path="/signUp" element={<SignUp />} />
-            <Route path="*" element={<Navigate to="/login" />} />
-          </Routes>
-        )
-      }
+    <SocketProvider token={logInAs ? token : null}>
+      <div>
+        {
+          // Show sign-in and sign-up routes when not logged in
+          !logInAs && (
+            <Routes>
+              <Route path="/login" element={<Login setLogInAs={setLogInAs} />} />
+              <Route path="/signUp" element={<SignUp />} />
+              <Route path="*" element={<Navigate to="/login" />} />
+            </Routes>
+          )
+        }
 
-      {
-        // show user page when logged in as licensed user
-        logInAs === "licensed" && (
-          <Routes>
-            <Route path="/" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
-            <Route path="/friends" element={<Friend logInAs={logInAs} setLogInAs={setLogInAs} />} />
+        {
+          // show user page when logged in as licensed user
+          logInAs === "licensed" && (
+            <Routes>
+              <Route path="/" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
+              <Route path="/friends" element={<Friend logInAs={logInAs} setLogInAs={setLogInAs} />} />
 
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        )
-      }
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          )
+        }
 
-      {
-        // show user page when logged in as unlicensed user
-        logInAs === "unlicensed" && (
-          <Routes>
-            <Route path="/" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        )
-      }
-      <Toaster />
-    </div>
+        {
+          // show user page when logged in as unlicensed user
+          logInAs === "unlicensed" && (
+            <Routes>
+              <Route path="/" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
+          )
+        }
+        <Toaster />
+      </div>
+    </SocketProvider>
   );
 }
 
