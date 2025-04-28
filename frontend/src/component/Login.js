@@ -7,78 +7,70 @@ import {
   FormControl,
   Box,
 } from "@mui/material";
+
+import toast from "react-hot-toast";
 import { UseStyles } from "./CssFormat";
-import { passwordValidator, usernameloginValidator } from "./Validator";
+
+import { passwordValidator, usernameloginValidator } from "../lib/Validator";
+import { axiosInstance } from "../lib/axios";
+import { checkAuth } from "../lib/checkAuth";
+
 
 function Login({ setLogInAs }) {
   const classes = UseStyles();
-  const navigate = useNavigate();
+  let navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
 
-  const loginAction = async () => {
-    console.log("Enter loginAction");
-    const loginUrl = `http://localhost:5001/api/auth/login`;
 
-    const userValidateResult = usernameloginValidator(username);
-    const pwdValidateResult = passwordValidator(password);
-    const validateResult = userValidateResult + pwdValidateResult;
+  const validateForm = () => {
+    console.log("validateForm");
+    // Client-side validation
+    let userValidateResult = usernameloginValidator(username);
+    let pwdValidateResult = passwordValidator(password);
+    let validateResult = userValidateResult + pwdValidateResult;
 
     if (validateResult !== "") {
-      setError(validateResult);
-      return;
+      toast.error(validateResult);
+      return false;
     }
+    return true;
+  };
 
-    const mode = username.includes("admin") ? "admin" : "user";
-    console.log(`Login as ${mode}`);
-    const postBody = { username, password };
 
-    try {
-      const response = await fetch(loginUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(postBody),
-        credentials: "include",
-      });
-
-      let data;
-      try {
-        data = await response.json();
-        console.log("Login response:", data);
-      } catch (err) {
-        console.error("Invalid JSON:", await response.text());
-        throw new Error("Server returned invalid response");
-      }
-
-      if (response.ok && data.message === "Login successful") {
-        sessionStorage.setItem("username", data.username);
-        sessionStorage.setItem("userId", data.userId);
-        sessionStorage.setItem("token", data.token);
-        console.log("Stored in sessionStorage:", {
-          username: data.username,
-          userId: data.userId,
-          token: data.token,
-        });
-
-        setLogInAs(mode);
-        navigate("/", {
-          state: { username: data.username },
-          replace: false,
-        });
-      } else {
-        setError(data.message || "Login failed");
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      setError(`Login error: ${err.message}`);
+  const handleSubmit = (event) => {
+    console.log("handleSubmit");
+    event.preventDefault();
+    const success = validateForm();
+    if (success === true) {
+      loginAction();
     }
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log("handleSubmit");
-    loginAction();
+
+  const loginAction = async () => {
+    console.log("Enter loginAction");
+    try {
+      const response = await axiosInstance.post("/auth/login",
+        { username, password },
+      );
+
+      const data = response.data;
+
+      if (response.status === 200) {
+        sessionStorage.setItem("username", username);
+        toast.success("Login successful");
+
+        const user_data = await checkAuth();
+        setLogInAs(user_data.userType);
+
+        navigate("/"); // Redirect to home page after successful login
+      } else {
+        toast.error(data.message);
+      }
+    } catch (err) {
+      toast.error(err.response.data.message);
+    }
   };
 
   return (
@@ -104,79 +96,66 @@ function Login({ setLogInAs }) {
             Sign in
           </Typography>
         </Box>
-        <form onSubmit={handleSubmit}>
-          <FormControl className={classes.form}>
-            <Box className={classes.form_item}>
-              <Typography variant="h6">Username:</Typography>
-              <TextField
-                label="Username"
-                variant="outlined"
-                required
-                className={classes.inputField}
-                value={username}
-                onChange={(event) => setUsername(event.target.value)}
-                margin="dense"
-                fullWidth
-              />
-            </Box>
-            <Box
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                padding: "20px 0 20px 0",
-              }}
+        <FormControl className={classes.form} onSubmit={handleSubmit}>
+          <Box className={classes.form_item}>
+            <Typography variant="h6">Username:</Typography>
+            <TextField
+              label="Username"
+              variant="outlined"
+              required
+              className={classes.inputField}
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
+              margin="dense"
+              fullWidth
+            />
+          </Box>
+          <Box
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              padding: "20px 0 20px 0",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Typography variant="h6">Password:</Typography>
+            </div>
+            <TextField
+              label="Password"
+              variant="outlined"
+              required
+              type="password"
+              className={classes.inputField}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              margin="dense"
+              fullWidth
+            />
+          </Box>
+          <Box className={classes.form_button_grp}>
+            <Button
+              classes={{ root: classes.button }}
+              variant="contained"
+              type="submit"
+              onClick={handleSubmit}
             >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="h6">Password:</Typography>
-                <Link
-                  className={classes.linkText}
-                  style={{ opacity: "0.6" }}
-                  to="/forgot_password"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-              <TextField
-                label="Password"
-                variant="outlined"
-                required
-                type="password"
-                className={classes.inputField}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                margin="dense"
-                fullWidth
-              />
-            </Box>
-            {error && (
-              <Typography color="error" variant="body1">
-                {error}
-              </Typography>
-            )}
-            <Box className={classes.form_button_grp}>
-              <Button
-                classes={{ root: classes.button }}
-                variant="contained"
-                type="submit"
+              Sign In
+            </Button>
+          </Box>
+          <Box className={classes.form_redirect}>
+            <Typography variant="h6">
+              I don't have an account ?
+              <Link
+                className={classes.linkText}
+                style={{ color: "#F47458" }}
+                to="/signUp"
               >
-                Sign In
-              </Button>
-            </Box>
-            <Box className={classes.form_redirect}>
-              <Typography variant="h6">
-                I don't have an account?
-                <Link
-                  className={classes.linkText}
-                  style={{ color: "#F47458" }}
-                  to="/signUp"
-                >
-                  {" "}
-                  Sign Up
-                </Link>
-              </Typography>
-            </Box>
-          </FormControl>
-        </form>
+                {" "}
+                Sign Up
+              </Link>
+            </Typography>
+          </Box>
+        </FormControl>
       </div>
     </div>
   );
