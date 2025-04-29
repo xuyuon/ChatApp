@@ -1,5 +1,4 @@
 // src/component/userPageComponent/FriendPage.jsx
-import Sidebar from "./Sidebar";
 import { useEffect, useState } from "react";
 import { axiosInstance }   from "../../lib/axios";
 import {
@@ -105,7 +104,6 @@ export default function FriendPage() {
 
   return (
     <Box sx={{ display:"flex", flexDirection:"column" }}>
-      <Sidebar/>
       <Box sx={{ ml: '300px', p: 3 }}>
         <Tabs
           value={tab}

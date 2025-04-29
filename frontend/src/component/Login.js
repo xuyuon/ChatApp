@@ -7,7 +7,6 @@ import {
   FormControl,
   Box,
 } from "@mui/material";
-
 import toast from "react-hot-toast";
 import { UseStyles } from "./CssFormat";
 
@@ -72,6 +71,7 @@ function Login({ setLogInAs }) {
       toast.error(err.response.data.message);
     }
   };
+
 
   return (
     <div className={classes.root}>

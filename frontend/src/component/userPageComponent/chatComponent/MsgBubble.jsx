@@ -41,7 +41,7 @@ const MsgBubble = ({ msgList }) => {
             (msg.isSender ? classes.sender : classes.guest)
           }
         >
-          <div>{msg.message}</div>
+          <div>{msg.content}</div>
           <div
             style={{
               textAlign: "right",
@@ -49,7 +49,7 @@ const MsgBubble = ({ msgList }) => {
               fontStyle: "italic",
             }}
           >
-            {moment(msg.sendTime).format("MMM Do, YYYY HH:mm")}
+            {moment(msg.timeSent).format("MMM Do, YYYY HH:mm")}
           </div>
         </li>
       ))}

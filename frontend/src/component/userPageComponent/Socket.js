@@ -5,15 +5,12 @@ export const SocketContext = createContext();
 
 const SOCKET_SERVER_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:5001";
 
-export const SocketProvider = ({ token, children }) => {
+export const Socket = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    if (!token) return;
-
     console.log("Connecting to socket at", SOCKET_SERVER_URL);
     const newSocket = io(SOCKET_SERVER_URL, {
-      auth: { token },
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
@@ -33,7 +30,7 @@ export const SocketProvider = ({ token, children }) => {
       console.log("Disconnecting socket");
       newSocket.disconnect();
     };
-  }, [token]);
+  }, []);
 
   return (
     <SocketContext.Provider value={socket}>

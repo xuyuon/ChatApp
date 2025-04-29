@@ -1,6 +1,6 @@
-import express from 'express';
-import { protect } from '../middleware/protect.js';
-import {
+const express = require('express');
+const { protect } = require('../middleware/protect.js');
+const {
   sendRequest,
   acceptRequest,
   rejectRequest,
@@ -8,7 +8,7 @@ import {
   getFriends,
   getIncomingRequests,
   getOutgoingRequests
-} from '../controllers/friend.controller.js';
+} = require('../controllers/friend.controller.js');
 
 const router = express.Router();
 router.use(protect);
@@ -28,4 +28,4 @@ router.get('/', getFriends);
 router.get('/requests/incoming', getIncomingRequests);
 router.get('/requests/outgoing', getOutgoingRequests);
 
-export default router;
+module.exports = router;

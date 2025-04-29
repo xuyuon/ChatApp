@@ -1,13 +1,14 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const { Schema, model, Types: { ObjectId } } = mongoose;
 
-const licenseSchema = new mongoose.Schema({
+const licenseSchema = new Schema({
     licenseKey: {
         type: String,
         required: true,
         unique: true,
     },
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: ObjectId,
         ref: "User",
         unique: true,
     },
@@ -20,7 +21,6 @@ const licenseSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-const License = mongoose.model("License", licenseSchema);
 
-export default License;
+module.exports = model("License", licenseSchema);
 

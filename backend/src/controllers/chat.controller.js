@@ -4,13 +4,6 @@ const mongoose = require("mongoose");
 const Message = require("../models/message.model");
 const User = require("../models/user.model");
 const Room = require("../models/room.model");
-const {
-  findRoom,
-  addRoom,
-  addUsernameSocketDict,
-  deleteUsernameSocketDict,
-  getUsernameSocketDict,
-} = require("../lib/room");
 
 const NEW_MESSAGE_EVENT = "newMessageEvent";
 let io;
@@ -27,129 +20,124 @@ const initSocket = (app) => {
     },
   });
 
+  console.log("Socket.IO server initialized");
+
   io.on("connection", async (socket) => {
     console.log(`a user connected, the socket.id is ${socket.id}`);
 
-    let SOCKET_ROOM_ID = "-1";
-    let USER_ID_PAIR = [];
-    let USERNAME_ID_DICT = {};
-    let USERNAME_PAIR = [];
-    let IN_ROOM_FLAG = false;
+    let socketRoomId = "-1";
+    let inRoomFlag = false;
+    let userIdPair = [];
+    let usernamePair = [];
 
     socket.on("reqChatted", async (username) => {
       console.log("reqChatted received, username:", username);
       try {
         const user = await User.findOne({ username });
         if (!user) return;
-        const chattedUserList = await getChattedUser(user._id.toString());
-        io.to(socket.id).emit("chattedUser", chattedUserList);
+        const chattedUsers = await getChattedUser(user._id);
+        io.to(socket.id).emit("chattedUser", chattedUsers);
       } catch (error) {
         console.error("Error in reqChatted:", error);
       }
     });
 
-    socket.on("joinRoom", async (usernamePair) => {
-      console.log("received joinRoom, usernamePair:", usernamePair);
-      if (usernamePair[1] === "") {
+    socket.on("joinRoom", async (usernames) => {
+      console.log("received joinRoom, usernames:", usernames);
+      if (usernames[1] === "") {
         console.log("recipient empty, returning");
         return;
       }
-      if (IN_ROOM_FLAG) {
+      if (inRoomFlag) {
         console.log("already in room, returning");
         return;
       }
 
-      USERNAME_PAIR = usernamePair[1].includes("\n")
-        ? [usernamePair[0], usernamePair[1].replaceAll("\n", "")]
-        : usernamePair;
-
-      IN_ROOM_FLAG = true;
-
-      console.log(`socket.id ${socket.id} emitted 'joinRoom'`);
-      console.log(`${USERNAME_PAIR[0]} wants to open a room with ${USERNAME_PAIR[1]}`);
+      usernamePair = usernames[1].includes("\n")
+        ? [usernames[0], usernames[1].replaceAll("\n", "")]
+        : usernames;
+      inRoomFlag = true;
 
       try {
-        USER_ID_PAIR = await findUserIdPair(USERNAME_PAIR);
-        USER_ID_PAIR.forEach((id, i) => {
-          USERNAME_ID_DICT[id] = USERNAME_PAIR[i];
-        });
+        // Find user IDs
+        userIdPair = await findUserIdPair(usernamePair);
+        console.log("userIdPair:", userIdPair);
 
-        console.log("userIdPair:", USER_ID_PAIR);
-        console.log("usernameIdDict:", USERNAME_ID_DICT);
+        // Find or create room
+        socketRoomId = await findOrCreateRoom(userIdPair);
+        console.log("socketRoomId:", socketRoomId);
 
-        addUsernameSocketDict(USERNAME_PAIR[0], socket.id);
+        socket.join(socketRoomId);
 
-        SOCKET_ROOM_ID = await findRoom(USER_ID_PAIR);
-        console.log("socketRoomId:", SOCKET_ROOM_ID);
-
-        socket.join(SOCKET_ROOM_ID);
-
-        const result = await fetchChat(USER_ID_PAIR);
+        // Fetch chat history
+        const messages = await fetchChat(socketRoomId);
         console.log("chat history retrieved");
 
-        const emitObj = result.map((chatObj) => ({
-          message: chatObj.message,
-          sender: USERNAME_ID_DICT[chatObj.sender],
-          receiver: USERNAME_ID_DICT[chatObj.receiver],
-          sendTime: parseDateToUTC8(chatObj.sendTime),
+        const emitObj = messages.map((msg) => ({
+          content: msg.content,
+          sender_id: usernamePair[userIdPair.indexOf(msg.sender_id.toString())],
+          receiver_id: usernamePair[userIdPair.indexOf(msg.receiver_id.toString())],
+          timeSent: msg.timeSent.toISOString(),
         }));
 
         console.log("parsed emitObj:", emitObj);
         io.to(socket.id).emit("chatHistory", emitObj);
 
-        await sendChattedUsers(USER_ID_PAIR, USERNAME_PAIR, io);
+        await sendChattedUsers(userIdPair, usernamePair, io);
       } catch (error) {
         console.error("Error in joinRoom:", error);
-        IN_ROOM_FLAG = false;
+        inRoomFlag = false;
       }
     });
 
     socket.on(NEW_MESSAGE_EVENT, async (data) => {
-      if (!IN_ROOM_FLAG) {
-        console.log("inRoomFlag false, received msg:", data.message);
+      if (!inRoomFlag) {
+        console.log("inRoomFlag false, received msg:", data.content);
         return;
       }
 
-      console.log("received text msg:", data.message);
+      console.log("received text msg:", data.content);
 
       try {
-        io.in(SOCKET_ROOM_ID).emit(NEW_MESSAGE_EVENT, data);
-        await writeChatToDb(data.message, USER_ID_PAIR);
-        await sendChattedUsers(USER_ID_PAIR, USERNAME_PAIR, io);
+        // Save message to database
+        const message = await writeChatToDb(data, socketRoomId, userIdPair);
+        if (!message) throw new Error("Failed to save message");
+
+        // Broadcast message to room
+        io.in(socketRoomId).emit(NEW_MESSAGE_EVENT, {
+          content: data.content,
+          sender_id: data.sender_id,
+          receiver_id: data.receiver_id,
+          timeSent: data.timeSent,
+        });
+
+        await sendChattedUsers(userIdPair, usernamePair, io);
       } catch (error) {
         console.error("Error in newMessageEvent:", error);
       }
     });
 
     socket.on("leaveRoom", () => {
-      console.log("leaveRoom received, inRoomFlag:", IN_ROOM_FLAG);
-      if (IN_ROOM_FLAG) {
-        socket.leave(SOCKET_ROOM_ID);
-        console.log(`removed socket ${socket.id} from ${SOCKET_ROOM_ID}`);
-        deleteUsernameSocketDict(USERNAME_PAIR[0], socket.id);
-        SOCKET_ROOM_ID = "-1";
-        USER_ID_PAIR = [];
-        USERNAME_ID_DICT = {};
-        USERNAME_PAIR = [];
-        IN_ROOM_FLAG = false;
+      console.log("leaveRoom received, inRoomFlag:", inRoomFlag);
+      if (inRoomFlag) {
+        socket.leave(socketRoomId);
+        console.log(`removed socket ${socket.id} from ${socketRoomId}`);
+        socketRoomId = "-1";
+        userIdPair = [];
+        usernamePair = [];
+        inRoomFlag = false;
       }
-      console.log("inRoomFlag set to:", IN_ROOM_FLAG);
-    });
-
-    socket.on("test", () => {
-      console.log("test received");
+      console.log("inRoomFlag set to:", inRoomFlag);
     });
 
     socket.on("disconnect", () => {
-      if (IN_ROOM_FLAG) {
+      if (inRoomFlag) {
         console.log("socket disconnected without leaving room");
-        socket.leave(SOCKET_ROOM_ID);
-        deleteUsernameSocketDict(USERNAME_PAIR[0], socket.id);
-        SOCKET_ROOM_ID = "-1";
-        USER_ID_PAIR = [];
-        USERNAME_ID_DICT = {};
-        USERNAME_PAIR = [];
-        IN_ROOM_FLAG = false;
+        socket.leave(socketRoomId);
+        socketRoomId = "-1";
+        userIdPair = [];
+        usernamePair = [];
+        inRoomFlag = false;
       }
       console.log("user disconnected");
     });
@@ -169,111 +157,96 @@ async function findUserIdPair(usernamePair) {
     return [user1._id.toString(), user2._id.toString()];
   } catch (error) {
     console.error("findUserIdPair failed:", error);
-    return `{"message": "findUserIdPair failed. User not found"}`;
+    throw error;
   }
 }
 
-async function fetchChat(userIdPair) {
+async function findOrCreateRoom(userIdPair) {
   try {
-    const messages = await Message.find({
-      $or: [
-        { sender: userIdPair[0], receiver: userIdPair[1] },
-        { sender: userIdPair[1], receiver: userIdPair[0] },
-      ],
-    }).sort({ sendTime: 1 });
-    return messages.map((msg) => ({
-      message: msg.message,
-      sendTime: msg.sendTime,
-      sender: msg.sender,
-      receiver: msg.receiver,
-    }));
+    let room = await Room.findOne({
+      users: { $all: [userIdPair[0], userIdPair[1]] },
+    });
+
+    if (!room) {
+      room = new Room({
+        users: [userIdPair[0], userIdPair[1]],
+        message_id: [],
+      });
+      await room.save();
+    }
+
+    return room._id.toString();
+  } catch (error) {
+    console.error("findOrCreateRoom failed:", error);
+    throw error;
+  }
+}
+
+async function fetchChat(roomId) {
+  try {
+    const room = await Room.findById(roomId).populate("message_id");
+    if (!room) return [];
+    return room.message_id; // Returns array of Message documents
   } catch (error) {
     console.error("fetchChat failed:", error);
     return [];
   }
 }
 
-function parseDateToUTC8(dateObject) {
-  const offsetToUTC = dateObject.getTimezoneOffset() * 60 * 1000;
-  const nowWithOffset = dateObject - offsetToUTC;
-  const newNow = new Date(nowWithOffset);
-  return newNow.toISOString().replace("T", " ").slice(0, -5);
-}
-
-async function writeChatToDb(messageContent, userIdPair) {
+async function writeChatToDb(data, roomId, userIdPair) {
   try {
-    const now = new Date();
     const message = new Message({
-      message: messageContent,
-      sendTime: now,
-      sender: userIdPair[0],
-      receiver: userIdPair[1],
+      chat_id: roomId,
+      sender_id: userIdPair[0], // Assumes sender_id is first user
+      receiver_id: userIdPair[1], // Assumes receiver_id is second user
+      content: data.content,
+      timeSent: new Date(data.timeSent),
     });
     await message.save();
+
+    // Update Room with message ID
+    await Room.findByIdAndUpdate(roomId, {
+      $push: { message_id: message._id },
+    });
+
     console.log("writeChatToDb success");
-    return `{"message": "Write chat to db success"}`;
+    return message;
   } catch (error) {
     console.error("writeChatToDb failed:", error);
-    return `{"message": "writeChatToDb failed. DB error"}`;
+    return null;
   }
 }
 
 async function getChattedUser(userId) {
   try {
     console.log("getChattedUser, userId:", userId);
-    const messages = await Message.aggregate([
-      {
-        $match: {
-          $or: [{ sender: userId }, { receiver: userId }],
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          senders: { $addToSet: "$sender" },
-          receivers: { $addToSet: "$receiver" },
-          maxSendTime: { $max: "$sendTime" },
-        },
-      },
-      {
-        $project: {
-          users: { $setUnion: ["$senders", "$receivers"] },
-          maxSendTime: 1,
-        },
-      },
-    ]);
+    const rooms = await Room.find({ users: userId }).populate("users");
+    const chattedUserIds = rooms
+      .flatMap((room) => room.users)
+      .filter((u) => u._id.toString() !== userId.toString())
+      .map((u) => u._id);
 
-    if (!messages.length) return [];
-
-    const chattedUserIds = messages[0].users.filter((id) => id !== userId);
     const users = await User.find(
-      { _id: { $in: chattedUserIds.map((id) => mongoose.Types.ObjectId(id)) } },
+      { _id: { $in: chattedUserIds } },
       { username: 1 }
-    ).sort({ "messages.maxSendTime": -1 });
+    );
 
     return users.map((user) => user.username);
   } catch (error) {
     console.error("getChattedUser failed:", error);
-    return ["Error retrieving chatted users"];
+    return [];
   }
 }
 
-async function sendChattedUsers(userIdPair, usernamePair, bigIOsocket) {
+async function sendChattedUsers(userIdPair, usernamePair, io) {
   try {
     const [chattedUserList0, chattedUserList1] = await Promise.all([
       getChattedUser(userIdPair[0]),
       getChattedUser(userIdPair[1]),
     ]);
 
-    const user0SocketList = getUsernameSocketDict(usernamePair[0]);
-    const user1SocketList = getUsernameSocketDict(usernamePair[1]);
-
-    for (const socketID of user0SocketList) {
-      bigIOsocket.to(socketID).emit("chattedUser", chattedUserList0);
-    }
-    for (const socketID of user1SocketList) {
-      bigIOsocket.to(socketID).emit("chattedUser", chattedUserList1);
-    }
+    io.to(userIdPair[0]).emit("chattedUser", chattedUserList0);
+    io.to(userIdPair[1]).emit("chattedUser", chattedUserList1);
   } catch (error) {
     console.error("sendChattedUsers failed:", error);
   }
@@ -297,7 +270,6 @@ const getChatTables = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Placeholder: Return all users (adapt if Follow model exists)
     const users = await User.find({ _id: { $ne: user._id } }, { username: 1 });
     res.json(users.map((u) => u.username));
   } catch (error) {
@@ -319,7 +291,7 @@ const getChattedUserRoute = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const chattedUsers = await getChattedUser(user._id.toString());
+    const chattedUsers = await getChattedUser(user._id);
     res.json(chattedUsers);
   } catch (error) {
     console.error("getChattedUserRoute failed:", error);

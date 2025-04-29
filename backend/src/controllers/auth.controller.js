@@ -1,8 +1,7 @@
-const bcrypt = require('bcryptjs');
 const User = require('../models/user.model.js');
 const License = require('../models/license.model.js');
 const { generateJWT } = require('../lib/utils.js');
-const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const signup = async (req, res) => {
     const {username, password} = req.body;
@@ -68,13 +67,13 @@ const login = async (req, res) => {
 
         // check if user exists
         if (!user){
-            return res.status(400).json({message: "Invalide credentials"});
+            return res.status(400).json({message: "Invalid credentials"});
         }
 
         // check if password is correct
         const isPasswordMatch = await bcrypt.compare(password, user.password)
         if (!isPasswordMatch){
-            return res.status(400).json({message: "Invalide credentials"});
+            return res.status(400).json({message: "Invalid credentials"});
         }
 
         generateJWT(user._id, res);
@@ -162,4 +161,11 @@ const addLicense = async (req, res) => {
     }
 }
 
-module.exports = { signup, login, logout, updateProfile, checkAuth, addLicense };
+module.exports = {
+    signup,
+    login,
+    logout,
+    updateProfile,
+    checkAuth,
+    addLicense
+};
