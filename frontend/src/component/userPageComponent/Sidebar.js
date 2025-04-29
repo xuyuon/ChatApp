@@ -53,9 +53,12 @@ function Sidebar({ LogInAs, setLogInAs }) {
 
     try {
       const response = await axiosInstance.post("/auth/logout", {});
+      console.log("Logout response:", response);
       const data = response.data;
+      console.log("Logout data:", data);
       if (response.status === 200) {
         sessionStorage.removeItem("username"); // Clear the session storage
+        console.log(LogInAs);
         setLogInAs(""); // Clear the login role
         setClickedButton(""); // Reset the selected button
         toast.success("Logout successful"); // Show success message
