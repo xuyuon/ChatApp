@@ -2,60 +2,90 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TextField, Button, Typography, Box } from "@mui/material";
 import { UseStyles } from "./CssFormat";
-import { usernameValidator, passwordValidator } from "./Validator";
+import toast from "react-hot-toast";
+
+import { usernameValidator, passwordValidator } from "../lib/Validator";
+import { axiosInstance } from "../lib/axios";
+
+
 
 function SignUp() {
   const classes = UseStyles();
-  const navigate = useNavigate();
+  let navigate = useNavigate();
+
+  // state variables
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordConfirmError, setPasswordConfirmError] = useState(false);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setError(""); // Clear previous errors
 
-    // Client-side validation (if validators match backend requirements)
-    const userValidateResult = usernameValidator(username);
-    const pwdValidateResult = passwordValidator(password);
-    const validateResult = userValidateResult + pwdValidateResult;
+  const validateForm = () => {
+    console.log("validateForm");
+    // Client-side validation
+    let userValidateResult = usernameValidator(username);
+    let pwdValidateResult = passwordValidator(password);
+    let validateResult = userValidateResult + pwdValidateResult;
 
     if (validateResult !== "") {
-      setError(validateResult);
-      return;
+      toast.error(validateResult);
+      return false;
     }
+    if (password !== passwordConfirm) {
+      toast.error("Passwords do not match.");
+      return false;
+    }
+    return true;
+  }
 
-    const signUpUrl = `http://${window.location.hostname}:${
-      process.env.REACT_APP_API_PORT || 5001
-    }/api/auth/signup`;
 
-    const postBody = {
-      username,
-      password,
-    };
-
+  const handleSignUp = async () => {
+    console.log("handleSignUp");
     try {
-      const response = await fetch(signUpUrl, {
-        method: "POST",
-        mode: "cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(postBody),
-        credentials: "include", // Include cookies for JWT
-      });
-
-      const data = await response.json();
-
-      if (response.status === 201 && data.message === "User created successfully") {
-        // JWT cookie is set by backend; no need to store token manually unless required
-        navigate("/"); // Redirect to login page
-      } else {
-        setError(data.error || "Signup failed");
+      const response = await axiosInstance.post("/auth/signup", 
+        {username, password,}
+      );
+      const data = response.data;
+      if (response.status === 201) {
+        toast.success("User created successfully. Please log in.");
+        navigate("/"); // Redirect to login after successful signup
+      }else {
+        toast.error(data.message);
       }
     } catch (err) {
-      console.error("Error during signup:", err);
-      setError("An error occurred during signup. Please try again.");
+      toast.error(err.response.data.message);
+    }
+  }
+
+
+  const handleSubmit = async (event) => {
+    console.log("handleSubmit");
+    event.preventDefault();
+
+    const success = validateForm();
+    if (success === true){
+      handleSignUp();
     }
   };
+
+
+  const handlePasswordChange = (event) => {
+    const value = event.target.value;
+    setPassword(value);
+
+    // Validate the password and update the error state
+    const isValid = passwordValidator(value) === "";
+    setPasswordError(!isValid); // Set error to false if valid
+  };
+
+
+  const handlePasswordConfirmChange = (event) => {
+    const value = event.target.value;
+    setPasswordConfirm(value);
+    setPasswordConfirmError(!(value === password));
+  };
+
 
   return (
     <div className={classes.rootNormal}>
@@ -92,7 +122,23 @@ function SignUp() {
               className={classes.inputField}
               type="password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={handlePasswordChange}
+              error={passwordError}
+              helperText={passwordError ? "Invalid password" : ""}
+              fullWidth
+            />
+          </Box>
+          <Box className={classes.form_item}>
+            <Typography variant="h6">Confirm your Password:</Typography>
+            <TextField
+              label="Confirm Password"
+              variant="outlined"
+              className={classes.inputField}
+              type="password"
+              value={passwordConfirm}
+              onChange={(event) => handlePasswordConfirmChange(event)}
+              error={passwordConfirmError}
+              helperText={passwordConfirmError ? "Passwords do not match" : ""}
               fullWidth
             />
           </Box>
