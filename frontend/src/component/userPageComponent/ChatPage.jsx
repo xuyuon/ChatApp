@@ -30,6 +30,7 @@ const ChatPage = ({ sender }) => {
   const [recipient, setRecipient] = useState("");
 
   return (
+    
     <div className={classes.pageContainer}>
       {
         /*  

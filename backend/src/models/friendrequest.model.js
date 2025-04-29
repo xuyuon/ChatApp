@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 const { Schema, model, Types: { ObjectId } } = mongoose;
 
 const friendRequestSchema = new Schema({
@@ -7,4 +7,4 @@ const friendRequestSchema = new Schema({
   status:   { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
 }, { timestamps: true });
 
-export default model('FriendRequest', friendRequestSchema);
+module.exports = model('FriendRequest', friendRequestSchema);

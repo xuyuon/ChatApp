@@ -1,21 +1,20 @@
 const mongoose = require('mongoose');
+const { Schema, model } = mongoose;
 
-const userSchema = new mongoose.Schema(
-  {
+const userSchema = new Schema({
     username: {
-      type: String,
-      required: true,
-      unique: true,
+        type: String,
+        required: true,
     },
     password: {
-      type: String,
-      required: true,
-      minlength: 6,
+        type: String,
+        required: true,
+        minlength: 6,
     },
     userType: {
         type: String,
-        enum: ["licensed", "unlicensed"],
-        default: "unlicensed",
+        enum: ['licensed', 'unlicensed'],
+        default: 'unlicensed',
     },
     // email: {
     //     type: String,
@@ -25,12 +24,8 @@ const userSchema = new mongoose.Schema(
     // avatar: {
     //     type: String,
     // },
-  },
-  {
+}, {
     timestamps: true,
-  }
-);
+});
 
-const User = mongoose.model('User', userSchema);
-
-module.exports = User;
+module.exports = model('User', userSchema);

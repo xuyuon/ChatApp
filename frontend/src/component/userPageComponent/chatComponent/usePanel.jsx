@@ -6,14 +6,18 @@ const usePanel = (sender, socket) => {
   useEffect(() => {
     if (!socket) return;
 
+    console.log("Emitting reqChatted for", sender);
+    socket.emit("reqChatted", sender);
+
     socket.on("chattedUser", (obj) => {
+      console.log("Received chattedUser:", obj);
       setNameList(obj);
     });
 
     return () => {
       socket.off("chattedUser");
     };
-  }, [socket]);
+  }, [socket, sender]);
 
   return { nameList };
 };

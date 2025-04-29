@@ -1,8 +1,13 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const { Schema, model, Types: { ObjectId } } = mongoose;
 
-const roomSchema = new mongoose.Schema({
-  users: [{ type: String, required: true }], // Array of user _ids (sorted for uniqueness)
-  createdAt: { type: Date, default: Date.now },
-});
+/**
+ * A Chat document references ALL messages in that conversation.
+ * Because participants are not stored here, each message has "sender" & "receiver".
+ */
+const roomSchema = new Schema({
+  users: [{ type: ObjectId, ref: "User", required: true }],
+  message_id: [{ type: ObjectId, ref: 'Message' }]
+}, { timestamps: true });
 
-module.exports = mongoose.model("Room", roomSchema);
+module.exports = model('Room', roomSchema);

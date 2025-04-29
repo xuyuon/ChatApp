@@ -6,19 +6,32 @@ let usernameSocketDict = {};
 
 /**
  * Find or create a room for two users
- * @param {string[]} userIdPair - Array of two user _ids
- * @returns {string} Room ID (MongoDB ObjectId)
+ * @param {ObjectId[]} userIdPair - Array of two user _ids (MongoDB ObjectId)
+ * @returns {string} Room ID (MongoDB ObjectId as string)
  */
 async function findRoom(userIdPair) {
   try {
+    // Validate ObjectId
+    if (
+      !mongoose.Types.ObjectId.isValid(userIdPair[0]) ||
+      !mongoose.Types.ObjectId.isValid(userIdPair[1])
+    ) {
+      throw new Error("Invalid user IDs");
+    }
+
     // Sort user IDs to ensure consistent room lookup
-    const sortedUsers = userIdPair.sort();
+    const sortedUsers = userIdPair
+      .map((id) => new mongoose.Types.ObjectId(id))
+      .sort((a, b) => a.toString().localeCompare(b.toString()));
+
     let room = await Room.findOne({
-      users: sortedUsers,
+      users: { $all: sortedUsers, $size: sortedUsers.length },
     });
+
     if (!room) {
       room = await addRoom(userIdPair);
     }
+
     return room._id.toString();
   } catch (error) {
     console.error("Error finding room:", error);
@@ -28,15 +41,27 @@ async function findRoom(userIdPair) {
 
 /**
  * Create a new room for two users
- * @param {string[]} userIdPair - Array of two user _ids
+ * @param {ObjectId[]} userIdPair - Array of two user _ids (MongoDB ObjectId)
  * @returns {object} Created room document
  */
 async function addRoom(userIdPair) {
   try {
-    const sortedUsers = userIdPair.sort();
+    // Validate ObjectId
+    if (
+      !mongoose.Types.ObjectId.isValid(userIdPair[0]) ||
+      !mongoose.Types.ObjectId.isValid(userIdPair[1])
+    ) {
+      throw new Error("Invalid user IDs");
+    }
+
+    const sortedUsers = userIdPair
+      .map((id) => new mongoose.Types.ObjectId(id))
+      .sort((a, b) => a.toString().localeCompare(b.toString()));
+
     const room = new Room({
       users: sortedUsers,
     });
+
     await room.save();
     return room;
   } catch (error) {
