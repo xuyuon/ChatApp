@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { Schema, model, Types: { ObjectId } } = mongoose;
 
 const messageSchema = new Schema({
-  chat_id:      { type: ObjectId, ref: 'Chat', required: true },
+  room_id:      { type: ObjectId, ref: 'Room', required: true },
   sender_id:    { type: ObjectId, ref: 'User', required: true },
   receiver_id:  { type: ObjectId, ref: 'User', required: true },
   content:   { type: String,  required: true },
