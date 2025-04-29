@@ -196,7 +196,7 @@ async function fetchChat(roomId) {
 async function writeChatToDb(data, roomId, userIdPair) {
   try {
     const message = new Message({
-      chat_id: roomId,
+      room_id: roomId,
       sender_id: userIdPair[0], // Assumes sender_id is first user
       receiver_id: userIdPair[1], // Assumes receiver_id is second user
       content: data.content,
