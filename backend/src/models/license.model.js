@@ -11,6 +11,7 @@ const licenseSchema = new Schema({
         type: ObjectId,
         ref: "User",
         unique: true,
+        sparse: true,
     },
     isActive: {
         type: Boolean,
