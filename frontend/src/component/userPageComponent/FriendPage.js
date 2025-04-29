@@ -16,7 +16,7 @@ import {
   Button,
   TextField,
   Tooltip,
-  Icon,
+
 } from "@mui/material";
 import PeopleIcon       from "@mui/icons-material/People";
 import PersonAddIcon    from "@mui/icons-material/PersonAdd";
@@ -47,7 +47,7 @@ const Row = ({ name, right }) => (
   </Box>
 );
 
-export default function FriendPage() {
+export default function FriendPage({ logInAs, setLogInAs }) {
   /* state ------------------------------ */
   const [tab, setTab] = useState(0);      // 0: Friends | 1: Requests
   const [friends, setFriends]   = useState([]);
@@ -105,7 +105,7 @@ export default function FriendPage() {
 
   return (
     <Box sx={{ display:"flex", flexDirection:"column" }}>
-      <Sidebar/>
+      <Sidebar logInAs={logInAs} setLogInAs={setLogInAs} />
       <Box sx={{ ml: '300px', p: 3 }}>
         <Tabs
           value={tab}
