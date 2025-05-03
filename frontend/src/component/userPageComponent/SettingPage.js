@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import {
   Button,
@@ -19,16 +20,17 @@ import { axiosInstance } from "../../lib/axios";
 import { checkAuth } from "../../lib/checkAuth";
 
 
-const SettingPage = ({ LogInAs, setLogInAs }) => {
+const SettingPage = ({ logInAs, setLogInAs }) => {
   // state variables
   const [licenseKey, setLicenseKey] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleAddLicense = async () => {
     console.log("Add License");
     setLoading(true); // Set loading state to true
     try {
-      if (LogInAs === "licensed") {
+      if (logInAs === "licensed") {
         toast.error("You are already a licensed user"); // Show error message
         return;
       }
@@ -38,6 +40,7 @@ const SettingPage = ({ LogInAs, setLogInAs }) => {
         toast.success("License added successfully! You are ready to explore the full functionality!"); // Show success message
         const userData = await checkAuth(); // Check user data after adding license
         setLogInAs(userData.userType); // Update the login role
+        navigate("/userPage/userHome"); // Redirect to user home page
       }
     } catch (err) {
       console.error("Detailed error during add license:", err);
@@ -72,23 +75,31 @@ const SettingPage = ({ LogInAs, setLogInAs }) => {
           sx={styles.cardHeader}
         />
         <CardContent>
-          <Box sx={styles.cardContentContainer}>
-          <Typography variant="h7">Please fill in your License Key:</Typography>
-            <Box sx={styles.inputContainer}>
-              <TextField
-                label="License Key"
-                size="small"
-                variant="outlined"
-                fullWidth
-                sx={styles.textField}
-                value={licenseKey}
-                onChange={(e) => setLicenseKey(e.target.value)}
-              />
-              <Button variant="contained" sx={styles.button} onClick={handleAddLicense}>
-                Submit
-              </Button>
+
+          { logInAs === "unlicensed" && (
+            <Box sx={styles.cardContentContainer}>
+              <Typography variant="h7">Please fill in your License Key:</Typography>
+              <Box sx={styles.inputContainer}>
+                <TextField
+                  label="License Key"
+                  size="small"
+                  variant="outlined"
+                  fullWidth
+                  sx={styles.textField}
+                  value={licenseKey}
+                  onChange={(e) => setLicenseKey(e.target.value)}
+                />
+                <Button variant="contained" sx={styles.button} onClick={handleAddLicense}>
+                  Register
+                </Button>
+              </Box>
             </Box>
-          </Box>
+          )}
+          { logInAs === "licensed" && (
+            <Box sx={styles.cardContentContainer}>
+              <Typography variant="h7">You are logged in as a licensed user</Typography>
+            </Box>
+          )}
         </CardContent>
       </Card>
 

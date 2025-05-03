@@ -63,7 +63,7 @@ function Login({ setLogInAs }) {
         const user_data = await checkAuth();
         setLogInAs(user_data.userType);
 
-        navigate("/"); // Redirect to home page after successful login
+        navigate("/userPage"); // Redirect to home page after successful login
       } else {
         toast.error(data.message);
       }

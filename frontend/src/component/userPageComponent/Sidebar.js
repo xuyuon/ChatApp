@@ -19,9 +19,10 @@ import { checkAuth } from "../../lib/checkAuth";
 
 
 
-function Sidebar({ LogInAs, setLogInAs }) {
+function Sidebar({ logInAs, setLogInAs }) {
   const [clickedButton, setClickedButton] = useState("Home"); // Record which button is clicked
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false); // State for logout confirmation dialog
+  const [openUnlicensedDialog, setOpenUnlicensedDialog] = useState(false); // State for unlicensed dialog
   const navigate = useNavigate();
 
 
@@ -53,35 +54,51 @@ function Sidebar({ LogInAs, setLogInAs }) {
       <SidebarButton
         text="Home"
         Icon={HomeIcon}
-        to="/userHome"
+        to="/userPage/userHome"
         selected={clickedButton === "Home"}
         onClick={() => setClickedButton("Home")}
       />
       <SidebarButton
         text="Profile"
         Icon={AccountCircleIcon}
-        to="/my profile"
+        to="/userPage/my profile"
         selected={clickedButton === "Profile"}
         onClick={() => setClickedButton("Profile")}
       />
       <SidebarButton
         text="Friends"
         Icon={PeopleIcon}
-        to="/friends"
+        to="/userPage/friends"
         selected={clickedButton === "Friends"}
-        onClick={() => setClickedButton("Friends")}
+        onClick={(e) => {
+          e.preventDefault(); // Prevent the Link from navigating immediately
+          if (logInAs !== "licensed") {
+            setOpenUnlicensedDialog(true); // Open the unlicensed dialog
+          } else {
+            setClickedButton("Friends");
+            navigate("/userPage/friends"); // Navigate to the friends page
+          }
+        }}
       />
       <SidebarButton
         text="Chat"
         Icon={ChatIcon}
-        to="/chat"
+        to="/userPage/chat"
         selected={clickedButton === "Chat"}
-        onClick={() => setClickedButton("Chat")}
+        onClick={(e) => {
+          e.preventDefault(); // Prevent the Link from navigating immediately
+          if (logInAs !== "licensed") {
+            setOpenUnlicensedDialog(true); // Open the unlicensed dialog
+          } else {
+            setClickedButton("Chat");
+            navigate("/userPage/chat"); // Navigate to the chat page
+          }
+        }}
       />
       <SidebarButton
         text="Settings"
         Icon={SettingsIcon}
-        to="/setting"
+        to="/userPage/setting"
         selected={clickedButton === "Settings"}
         onClick={(e) => setClickedButton("Settings")}
       />
@@ -107,6 +124,26 @@ function Sidebar({ LogInAs, setLogInAs }) {
           </Button>
           <Button onClick={handleLogout} color="secondary">
             Sign Out
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Unlicensed Dialog */}
+      <Dialog open={openUnlicensedDialog} onClose={() => setOpenUnlicensedDialog(false)}>
+        <DialogTitle>Functionality unavailable</DialogTitle>
+        <DialogContent>
+          <Typography>Sorry, only licensed users can access to this functionality. Please register your license key in setting page</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenUnlicensedDialog(false)} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={(e) => {
+            setClickedButton("Settings");
+            navigate("/userPage/setting");
+            setOpenUnlicensedDialog(false);
+          }} color="secondary">
+            Go to Settings
           </Button>
         </DialogActions>
       </Dialog>
