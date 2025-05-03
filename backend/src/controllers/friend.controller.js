@@ -10,19 +10,19 @@ const sendRequest = async (req, res) => {
     const { toUsername } = req.body;
 
     if (!toUsername)
-      return res.status(400).json({ msg: 'toUsername required' });
+      return res.status(400).json({message: 'toUsername required' });
 
     const toUser = await User.findOne({ username: toUsername });
 
     if (!toUser)
-      return res.status(404).json({ msg: 'User not found' });
+      return res.status(404).json({message: 'User not found' });
 
     if (fromUser.equals(toUser._id))
-      return res.status(400).json({ msg: 'Cannot add yourself' });
+      return res.status(401).json({message: 'Cannot add yourself' });
 
     const alreadyFriend = await Friend.findOne({ user: fromUser, friend: toUser._id });
     if (alreadyFriend)
-      return res.status(409).json({ msg: 'Already friends' });
+      return res.status(409).json({message: 'Already friends' });
 
     const pending = await FriendRequest.findOne({
       $or: [
@@ -31,13 +31,13 @@ const sendRequest = async (req, res) => {
       ]
     });
     if (pending)
-      return res.status(409).json({ msg: 'Request already pending' });
+      return res.status(409).json({message: 'Request already pending' });
 
     const request = await FriendRequest.create({ fromUser, toUser: toUser._id });
     res.status(201).json(request);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ msg: err.message });
+    res.status(500).json({message: err.message });
   }
 };
   

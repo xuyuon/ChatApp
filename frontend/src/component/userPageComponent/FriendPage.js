@@ -16,6 +16,7 @@ import {
   TextField,
   Tooltip,
 } from "@mui/material";
+import { toast } from "react-hot-toast";
 import PeopleIcon       from "@mui/icons-material/People";
 import PersonAddIcon    from "@mui/icons-material/PersonAdd";
 import CheckIcon        from "@mui/icons-material/Check";
@@ -84,7 +85,11 @@ export default function FriendPage() {
   const send   = () => {
     if (!userNameInput.trim()) return;
     axiosInstance.post('/friends/request', { toUsername: userNameInput.trim() })
-      .then(()=>{ setuserNameInput(""); refresh(); });
+      .then(()=>{ setuserNameInput(""); refresh(); })
+      .catch(err => {
+        console.error(err);
+        toast.error(err.response.data.message);
+      });
   };
   const cancel = (name) => {
     if (!name.trim()) return
