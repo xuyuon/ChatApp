@@ -43,14 +43,14 @@ function SignUp() {
   const handleSignUp = async () => {
     console.log("handleSignUp");
     try {
-      const response = await axiosInstance.post("/auth/signup", 
-        {username, password,}
+      const response = await axiosInstance.post("/auth/signup",
+        { username, password, }
       );
       const data = response.data;
       if (response.status === 201) {
         toast.success("User created successfully. Please log in.");
         navigate("/"); // Redirect to login after successful signup
-      }else {
+      } else {
         toast.error(data.message);
       }
     } catch (err) {
@@ -64,7 +64,7 @@ function SignUp() {
     event.preventDefault();
 
     const success = validateForm();
-    if (success === true){
+    if (success === true) {
       handleSignUp();
     }
   };
