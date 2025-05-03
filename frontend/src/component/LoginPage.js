@@ -8,7 +8,7 @@ import {
   Box,
 } from "@mui/material";
 import toast from "react-hot-toast";
-import { UseStyles } from "./CssFormat";
+import { UseStyles } from "../styling/CssFormat.styling";
 
 import { passwordValidator, usernameloginValidator } from "../lib/Validator";
 import { axiosInstance } from "../lib/axios";

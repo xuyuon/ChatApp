@@ -6,8 +6,8 @@ import Box from '@mui/material/Box';
 
 
 import "./App.css";
-import Login from "./component/Login";
-import SignUp from "./component/signUp";
+import Login from "./component/LoginPage";
+import SignUp from "./component/signUpPage";
 import UserPage from "./component/UserPage.js";
 import Friend from "./component/userPageComponent/FriendPage.js";
 import Chat from "./component/userPageComponent/ChatPage.jsx";
