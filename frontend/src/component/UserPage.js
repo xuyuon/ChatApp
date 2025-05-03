@@ -2,7 +2,7 @@ import "./UserPage.css";
 import Sidebar from "./userPageComponent/Sidebar";
 import ChatPage from "./userPageComponent/ChatPage";
 import FriendPage from "./userPageComponent/FriendPage";
-import LicensingPage from "./userPageComponent/LicensingPage";
+import SettingPage from "./userPageComponent/SettingPage";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Grid, Box } from "@mui/material";
@@ -21,7 +21,7 @@ const UserPage = ({ logInAs, setLogInAs }) => {
               element={<ChatPage sender={sessionStorage.getItem("username")} />}
             />
             <Route path="friends" element={<FriendPage />} />
-            <Route path="licensing" element={<LicensingPage />} />
+            <Route path="setting" element={<SettingPage />} />
           </Routes>
         </Grid>
       </Grid>
