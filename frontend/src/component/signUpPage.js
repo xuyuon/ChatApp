@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TextField, Button, Typography, Box } from "@mui/material";
-import { UseStyles } from "./CssFormat";
+import { UseStyles } from "../styling/CssFormat.styling";
 import toast from "react-hot-toast";
 
 import { usernameValidator, passwordValidator } from "../lib/Validator";

@@ -1,6 +1,14 @@
 const express = require('express');
 
-const { signup, login, logout, updateProfile, checkAuth, addLicense } = require('../controllers/auth.controller.js');
+const {
+    signup,
+    login,
+    logout,
+    updateUsername,
+    updatePassword,
+    checkAuth,
+    addLicense
+} = require('../controllers/auth.controller.js');
 const { protectRoute } = require('../middleware/auth.middleware.js');
 
 
@@ -12,7 +20,8 @@ router.post('/login', login);
 router.post('/logout', logout);
 
 router.post('/add-license', protectRoute, addLicense);
-router.put('/update-profile', protectRoute, updateProfile);
+router.put('/update-username', protectRoute, updateUsername);
+router.put('/update-password', protectRoute, updatePassword);
 
 router.get('/check-auth', protectRoute, checkAuth);
 

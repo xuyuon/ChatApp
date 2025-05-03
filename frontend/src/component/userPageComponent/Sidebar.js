@@ -4,7 +4,6 @@ import SidebarButton from "./SidebarButton";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 import ChatIcon from "@mui/icons-material/Chat";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import SettingsIcon from '@mui/icons-material/Settings';
 
@@ -14,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField } from "@mui/material";
 
 import { axiosInstance } from "../../lib/axios";
-import { checkAuth } from "../../lib/checkAuth";
 
 
 
@@ -57,13 +55,6 @@ function Sidebar({ logInAs, setLogInAs }) {
         to="/userPage/userHome"
         selected={clickedButton === "Home"}
         onClick={() => setClickedButton("Home")}
-      />
-      <SidebarButton
-        text="Profile"
-        Icon={AccountCircleIcon}
-        to="/userPage/my profile"
-        selected={clickedButton === "Profile"}
-        onClick={() => setClickedButton("Profile")}
       />
       <SidebarButton
         text="Friends"
