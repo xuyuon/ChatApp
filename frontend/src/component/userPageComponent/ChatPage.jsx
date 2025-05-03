@@ -11,7 +11,7 @@ const useStyles = makeStyles({
   pageContainer: {
     position: "relative",
     top: "5vh",
-    left: "350px",
+    left: "50px",
     borderStyle: "solid",
     borderColor: "green",
 
