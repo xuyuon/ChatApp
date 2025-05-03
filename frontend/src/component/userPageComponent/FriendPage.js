@@ -15,6 +15,7 @@ import {
   Button,
   TextField,
   Tooltip,
+  useMediaQuery,
 
 } from "@mui/material";
 import PeopleIcon       from "@mui/icons-material/People";
@@ -54,6 +55,8 @@ export default function FriendPage() {
   const [outgoing, setOutgoing] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [userNameInput, setuserNameInput] = useState("");
+
+  const isSmallWindow = useMediaQuery("(max-width:1000px)");
   
 
   /* fetch ------------------------------ */
@@ -104,7 +107,7 @@ export default function FriendPage() {
 
   return (
     <Box sx={{ display:"flex", flexDirection:"column" }}>
-      <Box sx={{ ml: '300px', p: 3 }}>
+      <Box sx={{ my: "20px", mx: isSmallWindow ? "0px" : "150px", p: 3 }} backgroundColor="background.default">
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
