@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
-export const generateJWT = (userID, res) => {
+const generateJWT = (userID, res) => {
     /**
     Generate a JWT token and set it in a cookie
     The payload of the JWT token:
@@ -19,3 +19,5 @@ export const generateJWT = (userID, res) => {
 
     return token;
 }
+
+module.exports = { generateJWT }

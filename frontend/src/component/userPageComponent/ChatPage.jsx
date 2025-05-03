@@ -1,14 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { makeStyles } from "@mui/styles";
-import { io } from "socket.io-client";
+import { SocketContext } from "./Socket";
 
-// import Room from "./chatComponent/Room";
-// import Panel from "./chatComponent/Panel";
+import Room from "./chatComponent/Room";
+import Panel from "./chatComponent/Panel";
 
-// Connect to web socket
-const SOCKET_SERVER_URL = "http://" + window.location.hostname + ":3030";
-const socket = io(SOCKET_SERVER_URL);
-console.log("Connect to socket", socket);
 
 // Styling
 const useStyles = makeStyles({
@@ -29,17 +25,30 @@ const useStyles = makeStyles({
 
 const ChatPage = ({ sender }) => {
   const classes = useStyles();
+  const socket = useContext(SocketContext);
   // A state to store the name of target that the actioner is chatting with
   const [recipient, setRecipient] = useState("");
 
   return (
+    
     <div className={classes.pageContainer}>
       {
-        // <Panel sender={sender} setRecipient={setRecipient} socket={socket} />
+        /*  
+          Panel shows the list of users (aka recipient) that the actioner (aka sender) has chatted with,
+          or allow the actioner to choose new target to chat with.
+          Pass states as props so subcomponents can access to those states globally.
+        */
+        <Panel sender={sender} setRecipient={setRecipient} socket={socket} />
       }
 
       {
-        // <Room sender={sender} recipient={recipient} socket={socket} />
+        /*
+          Room is the chatroom area, which shows the current chatting target on the top,
+          the messages exchange in the middle,
+          and the input tools (e.g. Emoji picker and image uploader) and textbox to receive user input.
+          Pass states as props so subcomponents can access to those states globally.
+        */
+        <Room sender={sender} recipient={recipient} socket={socket} />
       }
     </div>
   );

@@ -1,2 +1,22 @@
-backend/node_modules
+# Ignore node_modules in both backend and frontend
+node_modules/
+**/node_modules/
 
+# Ignore build output (e.g., for frontend)
+dist/
+build/
+
+# Ignore environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Ignore logs
+*.log
+npm-debug.log*
+
+# Ignore editor/IDE files
+.vscode/
+.idea/
+*.swp

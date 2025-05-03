@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+const mongoose = require('mongoose');
+const { Schema, model } = mongoose;
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
     username: {
         type: String,
         required: true,
@@ -12,8 +13,8 @@ const userSchema = new mongoose.Schema({
     },
     userType: {
         type: String,
-        enum: ["licensed", "unlicensed"],
-        default: "unlicensed",
+        enum: ['licensed', 'unlicensed'],
+        default: 'unlicensed',
     },
     // email: {
     //     type: String,
@@ -27,7 +28,4 @@ const userSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-
-const User = mongoose.model("User", userSchema);
-
-export default User;
+module.exports = model('User', userSchema);

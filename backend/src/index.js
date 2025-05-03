@@ -1,11 +1,14 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cookieParser from "cookie-parser";
-import cors from 'cors';
+const express = require('express');
+const dotenv = require('dotenv');
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
 
-import { connectDB } from './lib/db.js';
-import authRoutes from './routes/auth.route.js';
-import friendRoutes from './routes/friend.route.js';
+const { connectDB } = require('./lib/db.js');
+const authRoutes = require('./routes/auth.route.js');
+const friendRoutes = require('./routes/friend.route.js');
+const chatRoutes = require("./routes/chat.route");
+const { initSocket } = require("./controllers/chat.controller");
+
 
 
 const app = express();
@@ -23,8 +26,11 @@ app.use(cookieParser()); // parse cookies
 
 app.use('/api/auth', authRoutes);
 app.use('/api/friends', friendRoutes);
+app.use("/api/chat", chatRoutes);
 
-app.listen(PORT, () => {
-    console.log('Server is running on port: ' + PORT);
-    connectDB();
+const server = initSocket(app);
+
+server.listen(PORT, () => {
+  console.log(`Server is running on port: ${PORT}`);
+  connectDB();
 });

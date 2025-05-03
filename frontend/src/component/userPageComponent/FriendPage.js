@@ -1,5 +1,4 @@
 // src/component/userPageComponent/FriendPage.jsx
-import Sidebar from "./Sidebar";
 import { useEffect, useState } from "react";
 import { axiosInstance }   from "../../lib/axios";
 import {
@@ -47,7 +46,7 @@ const Row = ({ name, right }) => (
   </Box>
 );
 
-export default function FriendPage({ logInAs, setLogInAs }) {
+export default function FriendPage() {
   /* state ------------------------------ */
   const [tab, setTab] = useState(0);      // 0: Friends | 1: Requests
   const [friends, setFriends]   = useState([]);
@@ -105,7 +104,6 @@ export default function FriendPage({ logInAs, setLogInAs }) {
 
   return (
     <Box sx={{ display:"flex", flexDirection:"column" }}>
-      <Sidebar logInAs={logInAs} setLogInAs={setLogInAs} />
       <Box sx={{ ml: '300px', p: 3 }}>
         <Tabs
           value={tab}
