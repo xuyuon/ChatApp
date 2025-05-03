@@ -27,11 +27,15 @@ export const styles = {
     "&:hover": {
       backgroundColor: secondary, // Darken the color on hover
     },
+    width: "100px", // Set a fixed width for the button
+    minHeight: "30px", // Set a minimum height for the button
+    marginX: "10px",
   },
   cardContentContainer: {
     display: "flex",
     flexDirection: "column",
     gap: 2,
+    marginBottom: "30px",
   },
   inputContainer: {
     display: "flex",
