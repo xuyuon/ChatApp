@@ -9,12 +9,12 @@ export const styles = {
   cardHeader: {
     ".MuiCardHeader-title": {
       color: primary,
-      fontSize: "1.5rem", // Set the title color and size
+      fontSize: "1.2rem", // Set the title color and size
     },
   },
   icon: {
     color: primary,
-    fontSize: "1.5rem", // Match the title font size
+    fontSize: "1.2rem", // Match the title font size
   },
   textField: {
     maxWidth: "700px", // Limit the width to half of the viewport width
