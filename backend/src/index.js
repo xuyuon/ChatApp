@@ -10,6 +10,7 @@ const chatRoutes = require("./routes/chat.route");
 const { initSocket } = require("./controllers/chat.controller");
 
 
+
 const app = express();
 
 dotenv.config();
