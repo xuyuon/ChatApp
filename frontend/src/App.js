@@ -6,8 +6,8 @@ import Box from '@mui/material/Box';
 
 
 import "./App.css";
-import Login from "./component/Login";
-import SignUp from "./component/signUp";
+import Login from "./component/LoginPage";
+import SignUp from "./component/signUpPage";
 import UserPage from "./component/UserPage.js";
 import Friend from "./component/userPageComponent/FriendPage.js";
 import Chat from "./component/userPageComponent/ChatPage.jsx";
@@ -72,23 +72,12 @@ function App() {
 
       {
         // show user page when logged in as licensed user
-        logInAs === "licensed" && (
+        (logInAs === "licensed" || logInAs === "unlicensed") && (
           <Routes>
-            <Route path="/*" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
+            <Route path="/userPage/*" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
             {/* <Route path="/friends" element={<Friend logInAs={logInAs} setLogInAs={setLogInAs} />} />
             <Route path="/chat" element={<Chat logInAs={logInAs} setLogInAs={setLogInAs} />} /> */}
-
-            {/* <Route path="*" element={<Navigate to="/" />} /> */}
-          </Routes>
-        )
-      }
-
-      {
-        // show user page when logged in as unlicensed user
-        logInAs === "unlicensed" && (
-          <Routes>
-            <Route path="/" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
-            <Route path="*" element={<Navigate to="/" />} />
+            <Route path="*" element={<Navigate to="/userPage/home" />} />
           </Routes>
         )
       }

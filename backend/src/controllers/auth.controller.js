@@ -102,15 +102,85 @@ const logout = (req, res) => {
     }
 }
 
-const updateProfile = async (req, res) => {
+const updateUsername = async (req, res) => {
     try{
-        console.log("updateProfile route");
-        // TODO: update user profile
+        const {newUsername} = req.body;
+        const user = await User.findById(req.user._id);
+
+        // check if user exists
+        if (!user){
+            return res.status(400).json({message: "User not found"});
+        }
+        // check if new username is filled
+        if (!newUsername){
+            return res.status(400).json({message: "Empty username"});
+        }
+        // check if new username is same as old username
+        if (newUsername === user.username){
+            return res.status(400).json({message: "New username is same as old username"});
+        }
+        // check if the new username is already taken
+        const existingUser = await User.findOne({username: newUsername});
+        if (existingUser){
+            return res.status(400).json({message: "Username is already taken"});
+        }
+
+        // update the username
+        user.username = newUsername;
+        await user.save();
+        res.status(200).json({message: "Username updated successfully"});
     } catch (error){
         console.log("Error in updateProfile route: ", error.message);
         res.status(500).json({message: error.message});
     }
 }
+
+
+const updatePassword = async (req, res) => {
+    try{
+        const {oldPassword, newPassword} = req.body;
+        const user = await User.findById(req.user._id);
+
+        // check if user exists
+        if (!user){
+            return res.status(400).json({message: "User not found"});
+        }
+
+        // check if both old password and new password is filled
+        if (!oldPassword || !newPassword){
+            return res.status(400).json({message: "Empty fields"});
+        }
+
+        // check if old password is correct
+        const isPasswordMatch = await bcrypt.compare(oldPassword, user.password)
+        if (!isPasswordMatch){
+            return res.status(400).json({message: "Invalid credentials"});
+        }
+
+        // check if new password is same as old password
+        if (newPassword === oldPassword){
+            return res.status(400).json({message: "New password is same as old password"});
+        }
+
+        // check if new password length is greater or equal to 6
+        if (newPassword.length < 6) {
+            return res.status(400).json({message: 'Password must be at least 6 characters long'});
+        }
+
+        // hashing new password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // update the password
+        user.password = hashedPassword;
+        await user.save();
+        res.status(200).json({message: "Password updated successfully"});
+    }catch (error){
+        console.log("Error in updateProfile route: ", error.message);
+        res.status(500).json({message: error.message});
+    }
+}
+
 
 const checkAuth = async (req, res) => {
     // To check if user is logged in or not
@@ -165,7 +235,8 @@ module.exports = {
     signup,
     login,
     logout,
-    updateProfile,
+    updateUsername,
+    updatePassword,
     checkAuth,
     addLicense
 };

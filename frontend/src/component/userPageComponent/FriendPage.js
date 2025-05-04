@@ -1,5 +1,6 @@
 // src/component/userPageComponent/FriendPage.jsx
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { axiosInstance }   from "../../lib/axios";
 import {
   Box,
@@ -15,14 +16,18 @@ import {
   Button,
   TextField,
   Tooltip,
-
 } from "@mui/material";
+import { toast } from "react-hot-toast";
 import PeopleIcon       from "@mui/icons-material/People";
 import PersonAddIcon    from "@mui/icons-material/PersonAdd";
 import CheckIcon        from "@mui/icons-material/Check";
 import DeleteIcon        from "@mui/icons-material/Delete";
 import ClearIcon       from "@mui/icons-material/Clear";
 import MailOutlineIcon  from "@mui/icons-material/MailOutline";
+import SendIcon from '@mui/icons-material/Send';
+
+
+import { styles } from "../../styling/userPage.styling";
 
 
 const sidebarText = "hsl(36, 92.10%, 50.40%)"; // color of text in sidebar
@@ -54,6 +59,7 @@ export default function FriendPage() {
   const [outgoing, setOutgoing] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [userNameInput, setuserNameInput] = useState("");
+  const navigate = useNavigate();
   
 
   /* fetch ------------------------------ */
@@ -81,7 +87,11 @@ export default function FriendPage() {
   const send   = () => {
     if (!userNameInput.trim()) return;
     axiosInstance.post('/friends/request', { toUsername: userNameInput.trim() })
-      .then(()=>{ setuserNameInput(""); refresh(); });
+      .then(()=>{ setuserNameInput(""); refresh(); })
+      .catch(err => {
+        console.error(err);
+        toast.error(err.response.data.message);
+      });
   };
   const cancel = (name) => {
     if (!name.trim()) return
@@ -93,10 +103,14 @@ export default function FriendPage() {
     .catch(err => console.error(err));
   };
 
+  const startChat = (username) => {
+    navigate('/userPage/chat', { state: { recipient: username } });
+  };
+
   /* ui --------------------------------- */
   if (loading) {
     return (
-      <Box sx={{ ml: '300px', mt: 8, display:"flex", justifyContent:"center" }}>
+      <Box sx={{ mt: 8, display:"flex", justifyContent:"center" }}>
         <CircularProgress size={60} />
       </Box>
     );
@@ -104,7 +118,7 @@ export default function FriendPage() {
 
   return (
     <Box sx={{ display:"flex", flexDirection:"column" }}>
-      <Box sx={{ ml: '300px', p: 3 }}>
+      <Box sx={{ my: "20px", mx: "0px", p: 3 }} backgroundColor="background.default">
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
@@ -124,41 +138,42 @@ export default function FriendPage() {
 
         {/* ------- Friends Panel ------- */}
         {tab === 0 && (
-          <Card elevation={3}>
+          <Card elevation={3 } sx={styles.card}>
             <CardHeader
-              avatar={<PeopleIcon color="primary" />}
+              avatar={<PeopleIcon sx={styles.icon} />}
               title="My Friends"
+              sx={styles.cardHeader}
             />
             <CardContent sx={{ pt:0 }}>
-              {friends.length === 0 && (
-                <Typography color="text.secondary" align="center">
-                  You have no friends yet
-                </Typography>
-              )}
-              {friends.map(f => (
-                <Row
-                  key={f._id}
-                  name={f.friend.username}
-                  right={
-                    <Box>
-                    <Tooltip title="Start chat">
-                      <IconButton
-                        size="small"
-                        onClick={() =>
-                          window.location.assign(`/chat?user=${f.friend._id}`)
-                        }
-                      >
-                        <MailOutlineIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Remove friend">
-                      <IconButton size="small" color="error" onClick={() => cancel(f.friend.username)}>
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip></Box>
-                  }
-                />
-              ))}
+              <Box sx={styles.cardContentContainer}>
+                {friends.length === 0 && (
+                  <Typography color="text.secondary" align="center">
+                    You have no friends yet
+                  </Typography>
+                )}
+                {friends.map(f => (
+                  <Row
+                    key={f._id}
+                    name={f.friend.username}
+                    right={
+                      <Box>
+                      <Tooltip title="Start chat">
+                        <IconButton
+                          size="small"
+                          onClick={() => startChat(f.friend.username)}
+                        >
+                          <MailOutlineIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Remove friend">
+                        <IconButton size="small" color="error" onClick={() => cancel(f.friend.username)}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip></Box>
+                    }
+                  />
+                ))}
+              </Box>
             </CardContent>
           </Card>
         )}
@@ -167,79 +182,92 @@ export default function FriendPage() {
         {tab === 1 && (
           <Box>
             {/* ---- add new request ---- */}
-            <Card elevation={3} sx={{ mb:3 }}>
+            <Card elevation={3} sx={styles.card}>
               <CardHeader
-                avatar={<PersonAddIcon color="primary" />}
-                title="Send a Friend Request"
+                avatar={<SendIcon sx={styles.icon} />}
+                title="Add Friend"
+                sx={styles.cardHeader}
               />
-              <CardContent sx={{ pt:0 }}>
-                <Box sx={{ display:"flex", gap:1 }}>
-                  <TextField
-                    label="User Name"
-                    size="small"
-                    fullWidth
-                    value={userNameInput}
-                    onChange={e=>setuserNameInput(e.target.value)}
-                  />
-                  <Button variant="contained" onClick={send}>Send</Button>
+              <CardContent>
+                <Box sx={styles.cardContentContainer}>
+                  <Typography variant="h7">Please fill in your friend's username:</Typography>
+                  <Box sx={styles.inputContainer}>
+                    <TextField
+                      label="User Name"
+                      size="small"
+                      fullWidth
+                      sx={styles.textField}
+                      value={userNameInput}
+                      onChange={e=>setuserNameInput(e.target.value)}
+                    />
+                    <Button variant="contained" sx={styles.button} onClick={send}>
+                      Send
+                    </Button>
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
 
             {/* ---- incoming ---- */}
-            <Card elevation={3} sx={{ mb:3 }}>
+            <Card elevation={3} sx={styles.card}>
               <CardHeader
-                avatar={<PersonAddIcon color="warning" />}
+                avatar={<PersonAddIcon sx={styles.icon} />}
                 title="Incoming Requests"
+                sx={styles.cardHeader}
               />
-              <CardContent sx={{ pt:0 }}>
-                {incoming.length === 0 && (
-                  <Typography color="text.secondary" align="center">
-                    None
-                  </Typography>
-                )}
-                {incoming.map(r => (
-                  <Row
-                    key={r._id}
-                    name={r.fromUser.username}
-                    right={
-                      <>
-                        <IconButton size="small" color="success" onClick={()=>accept(r._id)}>
-                          <CheckIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" color="error" onClick={()=>reject(r._id)}>
-                          <ClearIcon fontSize="small" />
-                        </IconButton>
-                      </>
-                    }
-                  />
-                ))}
+              <CardContent>
+                <Box sx={styles.cardContentContainer}>
+                  {incoming.length === 0 && (
+                    <Typography color="text.secondary" align="center">
+                      None
+                    </Typography>
+                  )}
+                  {incoming.map(r => (
+                    <Row
+                      key={r._id}
+                      name={r.fromUser.username}
+                      right={
+                        <>
+                          <IconButton size="small" color="success" onClick={()=>accept(r._id)}>
+                            <CheckIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton size="small" color="error" onClick={()=>reject(r._id)}>
+                            <ClearIcon fontSize="small" />
+                          </IconButton>
+                        </>
+                      }
+                    />
+                  ))}
+                </Box>
               </CardContent>
             </Card>
 
             {/* ---- outgoing ---- */}
-            <Card elevation={3}>
+            <Card elevation={3} sx={styles.card}>
               <CardHeader
-                avatar={<PersonAddIcon color="disabled" />}
+                avatar={<MailOutlineIcon sx={styles.icon} />}
                 title="Requests You Sent"
+                sx={styles.cardHeader}
               />
-              <CardContent sx={{ pt:0 }}>
-                {outgoing.length === 0 && (
-                  <Typography color="text.secondary" align="center">
-                    None
-                  </Typography>
-                )}
-                {outgoing.map(r => (
-                  <Row
-                    key={r._id}
-                    name={r.toUser.username}
-                    right={
-                      <Typography variant="caption" color="text.secondary">
-                        Pending
-                      </Typography>
-                    }
-                  />
-                ))}
+              <CardContent>
+                <Box sx={styles.cardContentContainer}>
+                  {outgoing.length === 0 && (
+                    <Typography color="text.secondary" align="center">
+                      None
+                    </Typography>
+                  )}
+                  {outgoing.map(r => (
+                    <Row
+                      key={r._id}
+                      name={r.toUser.username}
+                      right={
+                        <Typography variant="caption" color="text.secondary">
+                          Pending
+                        </Typography>
+                      }
+                    />
+                  ))}
+                </Box>
               </CardContent>
             </Card>
           </Box>

@@ -2,24 +2,32 @@ import { useEffect, useState } from "react";
 
 const usePanel = (sender, socket) => {
   const [nameList, setNameList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket) {
+      setIsLoading(false);
+      return;
+    }
 
+    setIsLoading(true);
     console.log("Emitting reqChatted for", sender);
     socket.emit("reqChatted", sender);
 
-    socket.on("chattedUser", (obj) => {
+    const handleChattedUser = (obj) => {
       console.log("Received chattedUser:", obj);
       setNameList(obj);
-    });
+      setIsLoading(false);
+    };
+
+    socket.on("chattedUser", handleChattedUser);
 
     return () => {
-      socket.off("chattedUser");
+      socket.off("chattedUser", handleChattedUser);
     };
   }, [socket, sender]);
 
-  return { nameList };
+  return { nameList, isLoading };
 };
 
 export default usePanel;

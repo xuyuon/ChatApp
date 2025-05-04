@@ -4,9 +4,8 @@ import SidebarButton from "./SidebarButton";
 import HomeIcon from "@mui/icons-material/Home";
 import PeopleIcon from "@mui/icons-material/People";
 import ChatIcon from "@mui/icons-material/Chat";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import DoneAllIcon from '@mui/icons-material/DoneAll';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import { toast } from "react-hot-toast";
 import { useState } from "react";
@@ -14,38 +13,15 @@ import { useNavigate } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField } from "@mui/material";
 
 import { axiosInstance } from "../../lib/axios";
-import { checkAuth } from "../../lib/checkAuth";
 
 
 
 
-function Sidebar({ LogInAs, setLogInAs }) {
+function Sidebar({ logInAs, setLogInAs }) {
   const [clickedButton, setClickedButton] = useState("Home"); // Record which button is clicked
   const [openLogoutDialog, setOpenLogoutDialog] = useState(false); // State for logout confirmation dialog
-  const [licenseKey, setLicenseKey] = useState(""); // State for license key input
-  const [openLicenseDialog, setOpenLicenseDialog] = useState(false); // State for license dialog
+  const [openUnlicensedDialog, setOpenUnlicensedDialog] = useState(false); // State for unlicensed dialog
   const navigate = useNavigate();
-
-
-  const handleAddLicense = async () => {
-    console.log("Add License");
-    try {
-      if (LogInAs === "licensed") {
-        toast.error("You are already a licensed user"); // Show error message
-        return;
-      }
-
-      const response = await axiosInstance.post("/auth/add-license", { licenseKey });
-      if (response.status === 200) {
-        toast.success("License added successfully! You are ready to explore the full functionality!"); // Show success message
-        const userData = await checkAuth(); // Check user data after adding license
-        setLogInAs(userData.userType); // Update the login role
-      }
-    } catch (err) {
-      console.error("Detailed error during add license:", err);
-      toast.error(err.response.data.message); // Show error message
-    }
-  };
 
 
   const handleLogout = async () => {
@@ -76,38 +52,46 @@ function Sidebar({ LogInAs, setLogInAs }) {
       <SidebarButton
         text="Home"
         Icon={HomeIcon}
-        to="/userHome"
+        to="/userPage/home"
         selected={clickedButton === "Home"}
         onClick={() => setClickedButton("Home")}
       />
       <SidebarButton
-        text="Profile"
-        Icon={AccountCircleIcon}
-        to="/my profile"
-        selected={clickedButton === "Profile"}
-        onClick={() => setClickedButton("Profile")}
-      />
-      <SidebarButton
         text="Friends"
         Icon={PeopleIcon}
-        to="/friends"
+        to="/userPage/friends"
         selected={clickedButton === "Friends"}
-        onClick={() => setClickedButton("Friends")}
+        onClick={(e) => {
+          e.preventDefault(); // Prevent the Link from navigating immediately
+          if (logInAs !== "licensed") {
+            setOpenUnlicensedDialog(true); // Open the unlicensed dialog
+          } else {
+            setClickedButton("Friends");
+            navigate("/userPage/friends"); // Navigate to the friends page
+          }
+        }}
       />
       <SidebarButton
         text="Chat"
         Icon={ChatIcon}
-        to="/chat"
+        to="/userPage/chat"
         selected={clickedButton === "Chat"}
-        onClick={() => setClickedButton("Chat")}
-      />
-      <SidebarButton
-        text="Add License"
-        Icon={DoneAllIcon}
         onClick={(e) => {
           e.preventDefault(); // Prevent the Link from navigating immediately
-          setOpenLicenseDialog(true); // Call the function to add license
+          if (logInAs !== "licensed") {
+            setOpenUnlicensedDialog(true); // Open the unlicensed dialog
+          } else {
+            setClickedButton("Chat");
+            navigate("/userPage/chat"); // Navigate to the chat page
+          }
         }}
+      />
+      <SidebarButton
+        text="Settings"
+        Icon={SettingsIcon}
+        to="/userPage/setting"
+        selected={clickedButton === "Settings"}
+        onClick={(e) => setClickedButton("Settings")}
       />
       <SidebarButton
         text="Sign out"
@@ -135,24 +119,22 @@ function Sidebar({ LogInAs, setLogInAs }) {
         </DialogActions>
       </Dialog>
 
-      {/* License Key Dialog */}
-      <Dialog open={openLicenseDialog} onClose={() => setOpenLicenseDialog(false)}>
-        <DialogTitle>Add License Key to Unlock Full Function</DialogTitle>
+      {/* Unlicensed Dialog */}
+      <Dialog open={openUnlicensedDialog} onClose={() => setOpenUnlicensedDialog(false)}>
+        <DialogTitle>Functionality unavailable</DialogTitle>
         <DialogContent>
-          <Typography>Please enter your license key:</Typography>
-          <TextField
-            value={licenseKey}
-            onChange={(e) => setLicenseKey(e.target.value)}
-            fullWidth
-            margin="dense"
-          />
+          <Typography>Sorry, only licensed users can access to this functionality. Please register your license key in setting page</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenLicenseDialog(false)} color="primary">
+          <Button onClick={() => setOpenUnlicensedDialog(false)} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleAddLicense} color="secondary">
-            Add License
+          <Button onClick={(e) => {
+            setClickedButton("Settings");
+            navigate("/userPage/setting");
+            setOpenUnlicensedDialog(false);
+          }} color="secondary">
+            Go to Settings
           </Button>
         </DialogActions>
       </Dialog>
