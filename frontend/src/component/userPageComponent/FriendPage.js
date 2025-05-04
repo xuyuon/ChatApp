@@ -104,7 +104,7 @@ export default function FriendPage() {
   /* ui --------------------------------- */
   if (loading) {
     return (
-      <Box sx={{ ml: '300px', mt: 8, display:"flex", justifyContent:"center" }}>
+      <Box sx={{ mt: 8, display:"flex", justifyContent:"center" }}>
         <CircularProgress size={60} />
       </Box>
     );
