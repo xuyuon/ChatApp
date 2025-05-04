@@ -1,5 +1,6 @@
 import "./UserPage.css";
 import Sidebar from "./userPageComponent/Sidebar";
+import HomePage from "./userPageComponent/HomePage";
 import ChatPage from "./userPageComponent/ChatPage";
 import FriendPage from "./userPageComponent/FriendPage";
 import SettingPage from "./userPageComponent/SettingPage";
@@ -19,7 +20,6 @@ const UserPage = ({logInAs, setLogInAs}) => {
     const setUserState = async () => {
       const user_data = await checkAuth();
       if (user_data !== null) {
-        console.log("User data from checkAuth:", user_data);
         console.log("User type:", user_data.userType);
         setLogInAs(user_data.userType);
       }
@@ -50,12 +50,14 @@ const UserPage = ({logInAs, setLogInAs}) => {
         </Grid>
         <Grid item xs style={{overflow: "auto"}}>
           <Routes>
+            <Route path="home" element={<HomePage />} />
             <Route
               path="chat"
               element={<ChatPage sender={sessionStorage.getItem("username")} />}
             />
             <Route path="friends" element={<FriendPage />} />
             <Route path="setting" element={<SettingPage logInAs={logInAs} setLogInAs={setLogInAs}/>} />
+            <Route path="*" element={<Navigate to="/userPage/home" />} />
           </Routes>
         </Grid>
       </Grid>
