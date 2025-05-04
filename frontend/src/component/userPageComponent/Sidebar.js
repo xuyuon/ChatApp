@@ -52,7 +52,7 @@ function Sidebar({ logInAs, setLogInAs }) {
       <SidebarButton
         text="Home"
         Icon={HomeIcon}
-        to="/userPage/userHome"
+        to="/userPage/home"
         selected={clickedButton === "Home"}
         onClick={() => setClickedButton("Home")}
       />

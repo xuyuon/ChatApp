@@ -77,7 +77,7 @@ function App() {
             <Route path="/userPage/*" element={<UserPage logInAs={logInAs} setLogInAs={setLogInAs} />} />
             {/* <Route path="/friends" element={<Friend logInAs={logInAs} setLogInAs={setLogInAs} />} />
             <Route path="/chat" element={<Chat logInAs={logInAs} setLogInAs={setLogInAs} />} /> */}
-            <Route path="*" element={<Navigate to="/userPage/userHome" />} />
+            <Route path="*" element={<Navigate to="/userPage/home" />} />
           </Routes>
         )
       }

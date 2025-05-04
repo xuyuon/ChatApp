@@ -1,5 +1,7 @@
 const primary = "hsl(36, 92.10%, 50.40%)";
 const secondary = "hsl(36, 92.10%, 40%)";
+const background = "hsl(33, 91.80%, 90.40%)"; // Light background color
+const backgroundDark = "hsl(33, 91.80%, 80%)"; // Darker background color
 
 export const styles = {
   card: {
@@ -17,7 +19,7 @@ export const styles = {
     fontSize: "1.2rem", // Match the title font size
   },
   textField: {
-    maxWidth: "700px", // Limit the width to half of the viewport width
+    maxWidth: "800px", // Limit the width to half of the viewport width
   },
   button: {
     backgroundColor: primary,
@@ -41,6 +43,15 @@ export const styles = {
     display: "flex",
     gap: 1,
   },
+  notificationButton: {
+    maxWidth: "800px", 
+    color: "black",
+    fontSize: "0.9rem",
+    backgroundColor: background,
+    "&:hover": {
+      backgroundColor: backgroundDark,
+    },
+  }
 };
 
 export default styles;
