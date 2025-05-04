@@ -57,6 +57,7 @@ const UserPage = ({logInAs, setLogInAs}) => {
             />
             <Route path="friends" element={<FriendPage />} />
             <Route path="setting" element={<SettingPage logInAs={logInAs} setLogInAs={setLogInAs}/>} />
+            <Route path="*" element={<Navigate to="/userPage/home" />} />
           </Routes>
         </Grid>
       </Grid>
