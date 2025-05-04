@@ -83,7 +83,7 @@ const HomePage = () => {
         />
         <CardContent>
           <Box sx={styles.cardContentContainer}>
-            <Typography variant="h6">Friend Requests</Typography>
+            <Typography variant="h7" sx={{fontSize: "1.2rem"}}>Friend Requests</Typography>
             {incoming.length === 0 && (
               <Typography variant="h7">
                 You have no friend requests.
