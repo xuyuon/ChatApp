@@ -1,9 +1,10 @@
 import React from "react";
-import { Card, CardActionArea } from "@mui/material";
+import { Card, CardActionArea, Box } from "@mui/material";
 import { makeStyles } from '@mui/styles'
 import PanelHeader from "./PanelHeader";
 import usePanel from "./usePanel.jsx";
 import NameTag from "./NameTag";
+import CircularProgress from '@mui/material/CircularProgress';
 
 const useStyles = makeStyles({
   panelContainer: {
@@ -21,7 +22,27 @@ const useStyles = makeStyles({
 const Panel = ({ sender, setRecipient, socket }) => {
   const classes = useStyles();
 
-  const { nameList } = usePanel(sender, socket);
+  const { nameList, isLoading } = usePanel(sender, socket);
+
+  const handleClick = (name) => {
+    console.log("Setting recipient to:", name);
+    socket.emit("leaveRoom");
+    setRecipient(name);
+  };
+
+  if (isLoading) {
+    return (
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+      }}
+      >
+        <CircularProgress size={80} />
+      </Box>
+    );
+  }
 
   return (
     <Card square className={classes.panelContainer}>
@@ -36,10 +57,7 @@ const Panel = ({ sender, setRecipient, socket }) => {
           {nameList.map((name, i) => (
             <CardActionArea
               key={name}
-              onClick={(e) => {
-                socket.emit("leaveRoom");
-                setRecipient(e.target.innerText);
-              }}
+              onClick={() => handleClick(name)}
             >
               <NameTag name={name} />
             </CardActionArea>

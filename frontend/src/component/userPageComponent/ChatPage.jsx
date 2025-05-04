@@ -1,9 +1,13 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
 import { SocketContext } from "./Socket";
+import CircularProgress from '@mui/material/CircularProgress';
+import { Box } from "@mui/material";
 
 import Room from "./chatComponent/Room";
 import Panel from "./chatComponent/Panel";
+import { getUserName } from "../../lib/checkAuth";
 
 
 // Styling
@@ -23,11 +27,55 @@ const useStyles = makeStyles({
   },
 });
 
-const ChatPage = ({ sender }) => {
+const ChatPage = () => {
   const classes = useStyles();
   const socket = useContext(SocketContext);
   // A state to store the name of target that the actioner is chatting with
   const [recipient, setRecipient] = useState("");
+  const [sender, setSender] = useState(""); // State to store the username
+  const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const name = await getUserName();
+        console.log("Fetched sender:", name);
+        if (name) {
+          setSender(name);
+        } else {
+          console.error("Failed to fetch username");
+        }
+      } catch (error) {
+        console.error("Error fetching username:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUsername();
+  }, []);
+
+
+  useEffect(() => {
+    if (location.state?.recipient) {
+      console.log(location.state.recipient)
+      setRecipient(location.state.recipient);
+    }
+  }, [location]);
+
+  if (isLoading) {
+    return (
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+      }}
+      >
+        <CircularProgress size={80} />
+      </Box>
+    );
+  }
 
   return (
     

@@ -1,5 +1,6 @@
 // src/component/userPageComponent/FriendPage.jsx
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { axiosInstance }   from "../../lib/axios";
 import {
   Box,
@@ -58,6 +59,7 @@ export default function FriendPage() {
   const [outgoing, setOutgoing] = useState([]);
   const [loading, setLoading]   = useState(true);
   const [userNameInput, setuserNameInput] = useState("");
+  const navigate = useNavigate();
   
 
   /* fetch ------------------------------ */
@@ -99,6 +101,10 @@ export default function FriendPage() {
     axiosInstance.delete(`/friends/${name.trim()}`)
     .then(refresh)
     .catch(err => console.error(err));
+  };
+
+  const startChat = (username) => {
+    navigate('/userPage/chat', { state: { recipient: username } });
   };
 
   /* ui --------------------------------- */
@@ -154,9 +160,7 @@ export default function FriendPage() {
                       <Tooltip title="Start chat">
                         <IconButton
                           size="small"
-                          onClick={() =>
-                            window.location.assign(`/chat?user=${f.friend._id}`)
-                          }
+                          onClick={() => startChat(f.friend.username)}
                         >
                           <MailOutlineIcon fontSize="small" />
                         </IconButton>
