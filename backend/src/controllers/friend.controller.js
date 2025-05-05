@@ -1,14 +1,16 @@
+// Controller for friends system requirements
 const Friend = require('../models/friend.model.js');
 const FriendRequest = require('../models/friendrequest.model.js');
 const Room = require('../models/room.model.js');
-const User = require('../models/user.model.js'); // if needed
+const User = require('../models/user.model.js');
 
-/* ─────────────── R 2.1 – send request ─────────────── */
+/* R 2.1: Sending Friend Request */
 const sendRequest = async (req, res) => {
   try {
     const fromUser = req.user._id;
     const { toUsername } = req.body;
 
+    // check if the user input of username is valid
     if (!toUsername)
       return res.status(400).json({message: 'toUsername required' });
 
@@ -17,6 +19,7 @@ const sendRequest = async (req, res) => {
     if (!toUser)
       return res.status(404).json({message: 'User not found' });
 
+    // prevent sending request issues
     if (fromUser.equals(toUser._id))
       return res.status(401).json({message: 'Cannot add yourself' });
 
@@ -33,6 +36,7 @@ const sendRequest = async (req, res) => {
     if (pending)
       return res.status(409).json({message: 'Request already pending' });
 
+    // send request
     const request = await FriendRequest.create({ fromUser, toUser: toUser._id });
     res.status(201).json(request);
   } catch (err) {
@@ -41,13 +45,14 @@ const sendRequest = async (req, res) => {
   }
 };
   
-  /* ─────────────── R 2.2 – accept ─────────────── */
+  /* R 2.2: Accepting/Rejecting Friend Request */
 const acceptRequest = async (req, res) => {
   try {
     const { reqId } = req.params;
     const fr = await FriendRequest.findById(reqId);
-    if (!fr) return res.status(404).json({ msg: 'Request not found' });
 
+    // prevent accepting issues
+    if (!fr) return res.status(404).json({ msg: 'Request not found' });
     if (!fr.toUser.equals(req.user._id)) return res.status(403).json({ msg: 'Not your request' });
     if (fr.status !== 'pending')         return res.status(409).json({ msg: 'Already processed' });
 
@@ -66,13 +71,13 @@ const acceptRequest = async (req, res) => {
   }
 };
   
-  /* ─────────────── R 2.2 – reject ─────────────── */
 const rejectRequest = async (req, res) => {
   try {
     const { reqId } = req.params;
     const fr = await FriendRequest.findById(reqId);
-    if (!fr) return res.status(404).json({ msg: 'Request not found' });
 
+    // prevent accepting issues
+    if (!fr) return res.status(404).json({ msg: 'Request not found' });
     if (!fr.toUser.equals(req.user._id)) return res.status(403).json({ msg: 'Not your request' });
     if (fr.status !== 'pending')         return res.status(409).json({ msg: 'Already processed' });
 
@@ -84,25 +89,25 @@ const rejectRequest = async (req, res) => {
   }
 };
   
-  /* ─────────────── R 2.3 – unfriend ─────────────── */
+  /* R 2.3: Deleting Friend */
 const deleteFriend = async (req, res) => {
   try {
     const { username } = req.params; 
     const meId = req.user._id;
 
-    /* look up the target user */
+    // look up the target user
     const target = await User.findOne({ username }); 
     if (!target)
       return res.status(404).json({ msg: 'User not found' });
 
-    /* make sure an edge exists (me ➞ target) */
+    // make sure friend relationship exists
     const edge = await Friend.findOne({ user: meId, friend: target._id });
     if (!edge)
       return res.status(404).json({ msg: 'You are not friends' });
 
     const roomId = edge.room; 
 
-    /* delete both directions */
+    // delete friendship for both users
     await Friend.deleteMany({
       $or: [
         { user: meId,       friend: target._id },
@@ -110,7 +115,7 @@ const deleteFriend = async (req, res) => {
       ]
     });
 
-    /* delete the chat no matter it's empty or not */
+    // delete the chat
     const room = await Room.findById(roomId);
     if (room) {
       await Room.findByIdAndDelete(roomId);
@@ -123,7 +128,7 @@ const deleteFriend = async (req, res) => {
   }
 };
   
-  /* ─────────────── Convenience GETs ─────────────── */
+  /* GETs for frontend */
 const getFriends = async (req, res) => {
   const list = await Friend.find({ user: req.user._id })
                 .populate('friend', 'username');
