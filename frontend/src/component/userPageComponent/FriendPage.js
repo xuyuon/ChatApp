@@ -1,4 +1,4 @@
-// src/component/userPageComponent/FriendPage.jsx
+// Frontend of friend system
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { axiosInstance }   from "../../lib/axios";
@@ -31,7 +31,7 @@ import { styles } from "../../styling/userPage.styling";
 
 
 const sidebarText = "hsl(36, 92.10%, 50.40%)"; // color of text in sidebar
-/* ---------- helper row ---------- */
+// Row template for display of friends
 const Row = ({ name, right }) => (
   <Box
     sx={{
@@ -52,7 +52,6 @@ const Row = ({ name, right }) => (
 );
 
 export default function FriendPage() {
-  /* state ------------------------------ */
   const [tab, setTab] = useState(0);      // 0: Friends | 1: Requests
   const [friends, setFriends]   = useState([]);
   const [incoming, setIncoming] = useState([]);
@@ -62,7 +61,7 @@ export default function FriendPage() {
   const navigate = useNavigate();
   
 
-  /* fetch ------------------------------ */
+  /* fetch friends and friend request status when loading the page */
   const refresh = async () => {
     try {
       const [
@@ -81,11 +80,11 @@ export default function FriendPage() {
   };
   useEffect(() => { refresh(); }, []);
 
-  /* actions ---------------------------- */
+  // functions for requirements
   const accept = id => axiosInstance.patch(`/friends/request/${id}/accept`).then(refresh);
   const reject = id => axiosInstance.patch(`/friends/request/${id}/reject`).then(refresh);
   const send   = () => {
-    if (!userNameInput.trim()) return;
+    if (!userNameInput.trim()) return;  // trim to prevent empty space
     axiosInstance.post('/friends/request', { toUsername: userNameInput.trim() })
       .then(()=>{ setuserNameInput(""); refresh(); })
       .catch(err => {
@@ -102,12 +101,12 @@ export default function FriendPage() {
     .then(refresh)
     .catch(err => console.error(err));
   };
-
+  //navigate to chat page
   const startChat = (username) => {
     navigate('/userPage/chat', { state: { recipient: username } });
   };
 
-  /* ui --------------------------------- */
+  // loading sign
   if (loading) {
     return (
       <Box sx={{ mt: 8, display:"flex", justifyContent:"center" }}>
@@ -122,21 +121,21 @@ export default function FriendPage() {
         <Tabs
           value={tab}
           onChange={(_, v) => setTab(v)}
-          textColor="inherit"          // let us style manually
+          textColor="inherit"
           TabIndicatorProps={{
-            sx: { backgroundColor: sidebarText }
+            sx: { backgroundColor: sidebarText } // color of indicator
           }}
           sx={{
-            /* label color when NOT selected */
+            // label color when not selected
             '.MuiTab-root': { color: sidebarText, opacity: 0.7 },
-            /* label color when selected */
+            // label color when selected
             '.Mui-selected': { color: sidebarText, opacity: 1 },
           }}>
           <Tab icon={<PeopleIcon />}  iconPosition="start"  label="Friends"  />
           <Tab icon={<PersonAddIcon />} iconPosition="start" label="Requests" />
         </Tabs>
 
-        {/* ------- Friends Panel ------- */}
+        {/* Friends list and actions */}
         {tab === 0 && (
           <Card elevation={3 } sx={styles.card}>
             <CardHeader
@@ -160,12 +159,13 @@ export default function FriendPage() {
                       <Tooltip title="Start chat">
                         <IconButton
                           size="small"
-                          onClick={() => startChat(f.friend.username)}
+                          onClick={() => startChat(f.friend.username)} // chat button
                         >
                           <MailOutlineIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Remove friend">
+                        {/* delete friend button */}
                         <IconButton size="small" color="error" onClick={() => cancel(f.friend.username)}>
                           <DeleteIcon fontSize="small" />
                         </IconButton>
@@ -178,10 +178,10 @@ export default function FriendPage() {
           </Card>
         )}
 
-        {/* ------- Requests Panel ------- */}
+        {/* Requests Panel */}
         {tab === 1 && (
           <Box>
-            {/* ---- add new request ---- */}
+            {/* R 2.1: add new request */}
             <Card elevation={3} sx={styles.card}>
               <CardHeader
                 avatar={<SendIcon sx={styles.icon} />}
@@ -208,7 +208,7 @@ export default function FriendPage() {
               </CardContent>
             </Card>
 
-            {/* ---- incoming ---- */}
+            {/* incoming requests */}
             <Card elevation={3} sx={styles.card}>
               <CardHeader
                 avatar={<PersonAddIcon sx={styles.icon} />}
@@ -242,7 +242,7 @@ export default function FriendPage() {
               </CardContent>
             </Card>
 
-            {/* ---- outgoing ---- */}
+            {/* pending requests */}
             <Card elevation={3} sx={styles.card}>
               <CardHeader
                 avatar={<MailOutlineIcon sx={styles.icon} />}

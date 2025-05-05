@@ -1,3 +1,4 @@
+// data model for friends data
 const mongoose = require('mongoose');
 const { Schema, model, Types: { ObjectId } } = mongoose;
 
