@@ -1,3 +1,8 @@
+/**
+ * Sidebar button component
+ * Renders a clickable navigation button with an icon and text for sidebar to click on
+ */
+
 import "./sidebarButton.css";
 
 import { Link } from "react-router-dom";

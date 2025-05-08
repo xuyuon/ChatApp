@@ -1,3 +1,7 @@
+/**
+ * Header of the chat panel which displays the client's username and avatar
+ */
+
 import React from "react";
 import { Card, Grid } from "@mui/material";
 import NameTag from "./NameTag";

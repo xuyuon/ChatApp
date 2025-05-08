@@ -1,3 +1,7 @@
+/**
+ * Main chat page component, containing a panel and room page
+ */
+
 import React, { useState, useContext, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { makeStyles } from "@mui/styles";
@@ -81,21 +85,21 @@ const ChatPage = () => {
     
     <div className={classes.pageContainer}>
       {
-        /*  
-          Panel shows the list of users (aka recipient) that the actioner (aka sender) has chatted with,
-          or allow the actioner to choose new target to chat with.
-          Pass states as props so subcomponents can access to those states globally.
-        */
+        /**  
+         * Panel shows the list of users (aka recipient) that the actioner (aka sender) has chatted with,
+         * or allow the actioner to choose new target to chat with.
+         * Pass states as props so subcomponents can access to those states globally.
+         */
         <Panel sender={sender} setRecipient={setRecipient} socket={socket} />
       }
 
       {
-        /*
-          Room is the chatroom area, which shows the current chatting target on the top,
-          the messages exchange in the middle,
-          and the input tools (e.g. Emoji picker and image uploader) and textbox to receive user input.
-          Pass states as props so subcomponents can access to those states globally.
-        */
+        /**
+         * Room is the chatroom area, which shows the current chatting target on the top,
+         * the messages exchange in the middle,
+         * and the input tools (e.g. Emoji picker and image uploader) and textbox to receive user input.
+         * Pass states as props so subcomponents can access to those states globally.
+         */
         <Room sender={sender} recipient={recipient} socket={socket} />
       }
     </div>

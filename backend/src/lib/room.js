@@ -1,14 +1,14 @@
 const Room = require("../models/room.model");
 const mongoose = require("mongoose");
 
-// In-memory dictionary for username-to-socket mapping
 let usernameSocketDict = {};
 
 /**
  * Find or create a room for two users
- * @param {ObjectId[]} userIdPair - Array of two user _ids (MongoDB ObjectId)
- * @returns {string} Room ID (MongoDB ObjectId as string)
+ * Parameter: Array of two user _ids (MongoDB ObjectId)
+ * Return: Room ID (MongoDB ObjectId as string)
  */
+
 async function findRoom(userIdPair) {
   try {
     // Validate ObjectId
@@ -41,8 +41,8 @@ async function findRoom(userIdPair) {
 
 /**
  * Create a new room for two users
- * @param {ObjectId[]} userIdPair - Array of two user _ids (MongoDB ObjectId)
- * @returns {object} Created room document
+ * Parameter: Array of two user _ids (MongoDB ObjectId)
+ * Return: the created room object
  */
 async function addRoom(userIdPair) {
   try {
@@ -72,8 +72,8 @@ async function addRoom(userIdPair) {
 
 /**
  * Add a socket ID to the username's socket list
- * @param {string} username
- * @param {string} socketId
+ * Parameter: username
+ * Return: socketId
  */
 function addUsernameSocketDict(username, socketId) {
   if (!usernameSocketDict[username]) {
@@ -86,8 +86,8 @@ function addUsernameSocketDict(username, socketId) {
 
 /**
  * Remove a socket ID from the username's socket list
- * @param {string} username
- * @param {string} socketId
+ * Parameter: username
+ * Return: socketId
  */
 function deleteUsernameSocketDict(username, socketId) {
   if (usernameSocketDict[username]) {
@@ -102,8 +102,8 @@ function deleteUsernameSocketDict(username, socketId) {
 
 /**
  * Get the list of socket IDs for a username
- * @param {string} username
- * @returns {string[]}
+ * Parameter: username
+ * Return: Respective
  */
 function getUsernameSocketDict(username) {
   return usernameSocketDict[username] || [];

@@ -1,3 +1,8 @@
+/**
+ * Establishes a connection to the MongoDB database using Mongoose.
+ * The connection string is read from the MONGODB_URI environment variable.
+ */
+
 const mongoose = require('mongoose');
 
 const connectDB = async () => {

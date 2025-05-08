@@ -1,3 +1,8 @@
+/**
+ * Socket provider component
+ * Establishes and manages a WebSocket connection using Socket.IO, wrapped at App.js
+ */
+
 import React, { createContext, useEffect, useState } from "react";
 import io from "socket.io-client";
 

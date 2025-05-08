@@ -1,3 +1,7 @@
+/**
+ * Displays the user's name alongside an avatar generated from the first letter of their name.
+ */
+
 import { CardHeader, Avatar } from "@mui/material";
 
 const NameTag = ({ name }) => {

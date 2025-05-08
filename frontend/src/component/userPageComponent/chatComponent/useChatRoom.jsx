@@ -1,3 +1,8 @@
+/**
+ * Custom hook for managing a chat room's functionality.
+ * Handles real-time messaging, chat history, and socket connections for communication between a sender and recipient.
+ */
+
 import { useEffect, useState } from "react";
 
 const NEW_MESSAGE_EVENT = "newMessageEvent";

@@ -1,3 +1,8 @@
+/**
+ * Sidebar navigation component
+ * Provides navigation buttons for accessing different pages and handles user logout with confirmation dialogs.
+ */
+
 import "./sidebar.css";
 import SidebarButton from "./SidebarButton";
 

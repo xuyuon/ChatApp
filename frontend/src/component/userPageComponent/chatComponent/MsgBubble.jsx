@@ -1,3 +1,7 @@
+/**
+ * Displays messages with distinct styling for sender and receiver, including content and timestamp.
+ */
+
 import React from "react";
 import { makeStyles } from "@mui/styles";
 import moment from "moment";

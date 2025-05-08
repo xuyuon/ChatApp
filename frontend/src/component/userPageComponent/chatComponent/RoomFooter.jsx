@@ -1,3 +1,8 @@
+/**
+ * Footer of the chat room interface
+ * Provides a text input for composing messages and a send button, with support for sending messages
+ */
+
 import React from "react";
 import { TextField, Button, Card, Grid } from "@mui/material";
 import { makeStyles } from "@mui/styles";

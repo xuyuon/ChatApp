@@ -1,3 +1,8 @@
+/**
+ * Custom hook for managing a panel of chatted users.
+ * Fetches and updates the list of users a sender has chatted with using socket communication.
+ */
+
 import { useEffect, useState } from "react";
 
 const usePanel = (sender, socket) => {

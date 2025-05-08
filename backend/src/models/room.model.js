@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const { Schema, model, Types: { ObjectId } } = mongoose;
 
 /**
- * A Chat document references ALL messages in that conversation.
- * Because participants are not stored here, each message has "sender" & "receiver".
+ * A Room Schema references saving messages in that conversation (room), between users
+ * Created when user accept the friend request, such that the user can select the chat room with the new friend
  */
 const roomSchema = new Schema({
   users: [{ type: ObjectId, ref: "User", required: true }],

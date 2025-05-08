@@ -1,3 +1,8 @@
+/**
+ * Header of a chat room interface.
+ * Displays the recipient's name and avatar using the NameTag component
+ */
+
 import { Card, Grid } from "@mui/material";
 import NameTag from "./NameTag.jsx";
 

@@ -1,3 +1,7 @@
+/**
+ * Initializes a Socket.IO server for real-time messaging and provides HTTP routes for chat-related functionality.
+ */
+
 const http = require("http");
 const socketIO = require("socket.io");
 const mongoose = require("mongoose");
@@ -8,7 +12,7 @@ const Room = require("../models/room.model");
 const NEW_MESSAGE_EVENT = "newMessageEvent";
 let io;
 
-// Initialize Socket.IO server
+// Initialize Socket.IO server with cors
 const initSocket = (app) => {
   const server = http.createServer(app);
   io = socketIO(server, {
@@ -22,6 +26,7 @@ const initSocket = (app) => {
 
   console.log("Socket.IO server initialized");
 
+  // Handle new connections from client
   io.on("connection", async (socket) => {
     console.log(`a user connected, the socket.id is ${socket.id}`);
 
@@ -30,6 +35,7 @@ const initSocket = (app) => {
     let userIdPair = [];
     let usernamePair = [];
 
+    // Return a list of users the client has chatted with
     socket.on("reqChatted", async (username) => {
       console.log("reqChatted received, username:", username);
       try {
@@ -42,6 +48,7 @@ const initSocket = (app) => {
       }
     });
 
+    // User joining a chat room
     socket.on("joinRoom", async (usernames) => {
       console.log("received joinRoom, usernames:", usernames);
       if (usernames[1] === "") {
@@ -73,6 +80,8 @@ const initSocket = (app) => {
         const messages = await fetchChat(socketRoomId);
         console.log("chat history retrieved");
 
+
+        // Return chatted messages and emit to the client
         const emitObj = messages.map((msg) => ({
           content: msg.content,
           sender_id: usernamePair[userIdPair.indexOf(msg.sender_id.toString())],
@@ -89,7 +98,8 @@ const initSocket = (app) => {
         inRoomFlag = false;
       }
     });
-
+    
+    // User sending new message 
     socket.on(NEW_MESSAGE_EVENT, async (data) => {
       if (!inRoomFlag) {
         console.log("inRoomFlag false, received msg:", data.content);
@@ -117,6 +127,7 @@ const initSocket = (app) => {
       }
     });
 
+    // User leaving a chat room
     socket.on("leaveRoom", () => {
       console.log("leaveRoom received, inRoomFlag:", inRoomFlag);
       if (inRoomFlag) {
@@ -130,6 +141,7 @@ const initSocket = (app) => {
       console.log("inRoomFlag set to:", inRoomFlag);
     });
 
+    // Handle socket disconnection
     socket.on("disconnect", () => {
       if (inRoomFlag) {
         console.log("socket disconnected without leaving room");
@@ -161,6 +173,7 @@ async function findUserIdPair(usernamePair) {
   }
 }
 
+// Search for existing chat room between two users, create new room in case the room is not found
 async function findOrCreateRoom(userIdPair) {
   try {
     let room = await Room.findOne({
@@ -186,7 +199,7 @@ async function fetchChat(roomId) {
   try {
     const room = await Room.findById(roomId).populate("message_id");
     if (!room) return [];
-    return room.message_id; // Returns array of Message documents
+    return room.message_id; // Returns array of Message id
   } catch (error) {
     console.error("fetchChat failed:", error);
     return [];
@@ -257,27 +270,6 @@ const getChat = async (req, res) => {
   res.send("this is chat!");
 };
 
-const getChatTables = async (req, res) => {
-  console.log("GET /chatTables");
-  const { username } = req.query;
-  if (!username) {
-    return res.status(400).json({ message: "Username is required" });
-  }
-
-  try {
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const users = await User.find({ _id: { $ne: user._id } }, { username: 1 });
-    res.json(users.map((u) => u.username));
-  } catch (error) {
-    console.error("getChatTables failed:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
 const getChattedUserRoute = async (req, res) => {
   console.log("GET /chattedUser");
   const { username } = req.query;
@@ -302,6 +294,5 @@ const getChattedUserRoute = async (req, res) => {
 module.exports = {
   initSocket,
   getChat,
-  getChatTables,
   getChattedUserRoute,
 };

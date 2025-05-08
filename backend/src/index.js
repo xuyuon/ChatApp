@@ -1,3 +1,8 @@
+/**
+ * Server setup.
+ * Configures middleware, routes, and initializes WebSocket for real-time chat functionality.
+ */
+
 const express = require('express');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
@@ -8,8 +13,6 @@ const authRoutes = require('./routes/auth.route.js');
 const friendRoutes = require('./routes/friend.route.js');
 const chatRoutes = require("./routes/chat.route");
 const { initSocket } = require("./controllers/chat.controller");
-
-
 
 const app = express();
 

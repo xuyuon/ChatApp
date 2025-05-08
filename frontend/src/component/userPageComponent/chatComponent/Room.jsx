@@ -1,3 +1,7 @@
+/**
+ * a chat room interface combining a header with the recipient's name, a scrollable message area with message bubbles, and a footer for sending new messages
+ */
+
 import React, { useRef, useEffect, useState } from "react";
 import { Paper } from "@mui/material";
 import { makeStyles } from "@mui/styles";

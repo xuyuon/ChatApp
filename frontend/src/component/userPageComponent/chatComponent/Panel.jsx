@@ -1,3 +1,8 @@
+/**
+ * Chat panel displaying a list of users the sender has chatted with.
+ * Allows selecting a recipient to initiate a conversation
+ */
+
 import React from "react";
 import { Card, CardActionArea, Box } from "@mui/material";
 import { makeStyles } from '@mui/styles'
