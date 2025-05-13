@@ -1,5 +1,8 @@
 # CSCI3100 Project
 
+ChatApp is a web-based chat application. It contains basic features that enable online messaging. 
+
+
 ## How to run
 
 * Run the server (backend)
