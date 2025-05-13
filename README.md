@@ -3,26 +3,41 @@
 ChatApp is a web-based chat application. It contains basic features that enable online messaging. 
 
 
-## How to run
+## How to start a local server
+We need to start the backend first. 
 
-* Run the server (backend)
+1. To do that, we need to first make sure the backend is connected to the right database. You should change replace the environment variable `MONGODB_URI` in the file `backend/.env` with your own database uri.
+
+2. Now, you can go to the backend:
 ```
 cd backend
 ```
-Install the npm modules if you have not do so:
+
+3. Install the npm modules if you have not do so:
 ```
 npm install
 ```
-Start the server:
+
+4. You are ready to start the server now:
 ```
 npm run dev
 ```
 
-* Front end
+
+## How to start the frontend
+With server ready, we are ready to start the frontend and have access to the application.
+
+1. Go to frontend:
 ```
 cd frontend
 ```
+
+2. Install the npm modules if you have not do so:
+```
 npm install
+```
+
+3. Start the frontent:
 ```
 npm start
 ```
