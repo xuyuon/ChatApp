@@ -1,3 +1,8 @@
+/*
+Home page component
+This component is the home page of the application. It displays a welcome message and notifications for friend requests.
+*/
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 

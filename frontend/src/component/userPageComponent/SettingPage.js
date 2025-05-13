@@ -1,3 +1,9 @@
+/*
+Setting page component
+This component is the settings page of the application. 
+It allows users to update their username and password, and add a license key.
+*/
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";

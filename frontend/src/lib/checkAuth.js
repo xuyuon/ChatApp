@@ -1,3 +1,4 @@
+// This file contains functions to check authentication and get the username of the logged-in user.
 import { axiosInstance } from './axios.js';
 
 

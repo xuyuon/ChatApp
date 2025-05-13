@@ -1,3 +1,8 @@
+/*
+This file contains the axios instance used for making API requests.
+It sets the base URL for the API and enables sending cookies with requests.
+*/
+
 import axios from 'axios';
 
 

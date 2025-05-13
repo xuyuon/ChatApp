@@ -1,3 +1,8 @@
+/*
+Sign up page for the chat application
+This component allows users to create a new account by providing a username and password.
+*/
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { TextField, Button, Typography, Box } from "@mui/material";

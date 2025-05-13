@@ -1,3 +1,9 @@
+/*
+User page component
+This component is the main user interface of the application. 
+It contains a sidebar for navigation and different pages for home, chat, friends, and settings.
+*/
+
 import "./UserPage.css";
 import Sidebar from "./userPageComponent/Sidebar";
 import HomePage from "./userPageComponent/HomePage";

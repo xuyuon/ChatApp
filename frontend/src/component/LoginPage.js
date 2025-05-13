@@ -1,3 +1,8 @@
+/*
+Login page component
+This component is the login page of the application.
+*/
+
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {

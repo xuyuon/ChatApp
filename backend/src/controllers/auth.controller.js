@@ -4,6 +4,9 @@ const { generateJWT } = require('../lib/utils.js');
 const bcrypt = require('bcryptjs');
 
 const signup = async (req, res) => {
+    /*
+    signup route
+    */
     const {username, password} = req.body;
     try {
         // console.log("req.body: ", req.body);
@@ -59,7 +62,9 @@ const signup = async (req, res) => {
 }
 
 const login = async (req, res) => {
-    // res.send('login route');
+    /*
+    login route
+    */
     const {username, password} = req.body;
 
     try {
@@ -90,7 +95,9 @@ const login = async (req, res) => {
 }
 
 const logout = (req, res) => {
-    // res.send('logout route');
+    /*
+    logout route
+    */
     try{
         // clear the cookie
         res.cookie('jwt', '', {maxAge: 0});
@@ -103,6 +110,9 @@ const logout = (req, res) => {
 }
 
 const updateUsername = async (req, res) => {
+    /*
+    update username route
+    */
     try{
         const {newUsername} = req.body;
         const user = await User.findById(req.user._id);
@@ -137,6 +147,9 @@ const updateUsername = async (req, res) => {
 
 
 const updatePassword = async (req, res) => {
+    /*
+    update password route
+    */
     try{
         const {oldPassword, newPassword} = req.body;
         const user = await User.findById(req.user._id);
@@ -183,7 +196,9 @@ const updatePassword = async (req, res) => {
 
 
 const checkAuth = async (req, res) => {
-    // To check if user is logged in or not
+    /*
+    check auth route: To check if user is logged in or not
+    */
     try{
         res.status(200).json(req.user);
     }catch(error){
@@ -193,7 +208,9 @@ const checkAuth = async (req, res) => {
 }
 
 const addLicense = async (req, res) => {
-    // To add liscense to user
+    /*
+    add license route: To add license to user
+    */
     try{
         const {licenseKey} = req.body;
         const user = await User.findById(req.user._id);

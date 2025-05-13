@@ -1,3 +1,8 @@
+/*
+This file contains the validation functions for the login and registration forms.
+It includes functions to validate the username and password fields.
+*/
+
 export const usernameloginValidator = (username) => {
   if (!username) {
     return "Username is required.\n";

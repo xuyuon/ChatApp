@@ -3,6 +3,12 @@ const User = require("../models/user.model.js");
 
 
 const protectRoute = async (req, res, next) => {
+    /*
+    protectRoute middleware: 
+    - checks if the user is authenticated
+    - checks if the user exists
+    - sets the user in the request object
+    */
     try{
         const token = req.cookies.jwt;
 
