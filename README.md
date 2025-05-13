@@ -25,7 +25,7 @@ npm run dev
 
 
 ## How to start the frontend
-With server ready, we are ready to start the frontend and have access to the application.
+With server ready, we are ready to run the app in the development mode.
 
 1. Go to frontend:
 ```
